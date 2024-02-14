@@ -1,0 +1,19 @@
+@startuml Phonological
+start
+
+:User clicks on a word;
+if (Word pronunciation available?) then (yes)
+  :Retrieve pronunciation;
+  :Play pronunciation;
+else (no)
+  :Display message "Pronunciation not available";
+endif
+
+:User clicks on a word;
+:Retrieve word's phonetic representation;
+:Display phonetic representation;
+
+stop
+@enduml
+
+/' When displaying the phontiic representation, it could be by a litlle popup is coming that shows he breakdown of a word into its individual sounds'/

@@ -1,0 +1,9 @@
+@startuml surface
+start
+
+:The simulator choose words from the presented text;
+:Warp some letters in a word;
+:Apply changes to text;
+
+stop
+@enduml
