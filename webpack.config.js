@@ -4,7 +4,7 @@ const path = require('path');
 
 module.exports = {
     entry: {
-        popup: './src/popup.jsx'
+        popup: './src/popup.js'
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -20,7 +20,12 @@ module.exports = {
                     presets: ['@babel/preset-env', '@babel/preset-react'],
                 }
             }
-        }]
+        },
+        {
+            test: /\.css$/,
+            use: ['style-loader', 'css-loader'],
+        }
+    ]
     },
     plugins: [new HtmlWebpackPlugin({
         template: './src/popup.html',
