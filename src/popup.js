@@ -54,7 +54,7 @@ function Popup () {
             <h2><strong>Select a Dyslexia type</strong></h2>
             <div className="types">
                 <div>
-                    <label>phonological</label>
+                    <label>Phonological</label>
                     <input type="radio" name="phonological" id="phonological" value="Phonological" checked={selectedType === "Phonological"} onChange={handleTypeChange} />
                 </div>
                 <div>
