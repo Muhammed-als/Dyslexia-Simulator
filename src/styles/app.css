@@ -1,0 +1,116 @@
+*{
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html
+{
+    width: 500px;
+    padding: 1%;
+}
+body{
+    background-color: rgb(112, 120, 236);
+    color: white;
+    overflow: auto;
+
+}
+#react-target{
+    width: 100%;
+    border-radius: 15px;
+}
+.extension-container{
+    width: 100%; /* Adjust the percentage or use a fixed width */
+    margin: 0 auto; /* Center the container horizontally */
+}
+.extension-container .title{
+    font-size: x-large;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.extension-container h2{
+    font-size: 1.2rem;
+}
+.types{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+
+.types div{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+}
+.types div label{
+    font-size: large;
+}
+.types div input{
+    margin-left : auto;
+}
+.extension-container .buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
+}
+.extension-container .buttons .start,
+.extension-container .buttons .stop{
+    text-align: center;
+    color: white;
+    border: 2px solid white;
+    box-shadow: inset 0px 5px 5px 2px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    padding: 2%;
+    width: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    font-size: 1.2rem;
+}
+.extension-container .separateLine{
+    border-radius: 15px;
+    width: 100%;
+    height: 5px;
+    background-color: white;
+    margin-top: 20px;
+    margin-bottom: 10px;
+
+}
+.extension-container .description{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    margin: auto;
+    margin-bottom: 20px;
+}
+.extension-container .description p{
+    width: 100%;
+    text-align: start;
+    font-size: 1.2rem;
+}
+.extension-container .buttons .start:hover,
+.extension-container .buttons .stop:hover{
+    opacity: 0.8;
+    transition: all 0.3s ease-in-out;
+}
+.extension-container .buttons .start{
+    background-color: rgb(2, 183, 99);
+}
+.extension-container .buttons .stop{
+    background-color: rgb(215, 86, 86);
+}
+.extension-container .hide{
+    display: none;
+}
