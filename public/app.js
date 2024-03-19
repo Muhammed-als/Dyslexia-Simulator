@@ -1,3 +1,5 @@
+//const chromeApi = require('./chromeApi');
+
 let isListening = false;
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -51,7 +53,7 @@ function activatePhonological(){
     while (allText.nextNode()) {
         textNodes.push(allText.currentNode);
     }
-    for(let i = 0; i<parseInt(textNodes.length/4); i++){
+    for(let i = 0; i<parseInt(textNodes.length/2); i++){
         combineWords();
         createUnfamiliarWords();
     }
@@ -115,3 +117,9 @@ const messageListener = function(request, sender, sendResponse) {
 };
 
 chrome.runtime.onMessage.addListener(messageListener);
+
+module.exports = {
+    start,
+    stop,
+    dyslexiaType
+};
