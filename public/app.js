@@ -20,7 +20,7 @@ function start() {
 
 function stop() {
     if (isListening) {
-       /*  chrome.runtime.onMessage.removeListener(messageListener); */
+       /*  chromeApi.runtime.onMessage.removeListener(messageListener); */
         isListening = false;
     }
 }
@@ -116,6 +116,7 @@ function activateSurfaceMood(){
     }
     for(let i = 0; i<parseInt(textNodes.length/2); i++){
         changeFontSettings();
+        applyBlurEffect();
     }
     function changeFontSettings(){
         const randomIndex = Math.floor(Math.random() * textNodes.length);
@@ -145,6 +146,34 @@ function activateSurfaceMood(){
         randomTextNode.parentElement.innerHTML += newTextContent;
         }
     }
+    function applyBlurEffect() {
+        const randomIndex = Math.floor(Math.random() * textNodes.length);
+        const randomTextNode = textNodes[randomIndex];
+        const textContent = randomTextNode.nodeValue.trim();
+        let words = [];
+        if (/\s+/.test(textContent)) {
+            words = textContent.split(/\s+/);
+        }
+        let start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
+        if (words.length > 0) {
+            for (let i = start; i < end; i++) {
+                const word = words[i];
+                let newWord = '';
+                for (let j = 0; j < word.length; j++) {
+                    const letter = word[j];
+                    let blurEffect = '';
+                    blurEffect = 'filter: blur(1px);';
+                    newWord += `<span style="${blurEffect}">${letter}</span>`;
+                }
+                words[i] = newWord;
+            }
+            const newTextContent = words.join(' ');
+            randomTextNode.nodeValue = '';
+            randomTextNode.parentElement.innerHTML += newTextContent;
+        }
+    }
+    
 }
 
 
