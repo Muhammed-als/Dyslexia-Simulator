@@ -1,8 +1,8 @@
-//const chromeApi = require('./chromeApi');
+const chromeApi = require("./chromeApi");
 
 let isListening = false;
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.type === "stop") {
         stop();
     }
@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 function start() {
     if (!isListening) {
-        chrome.runtime.onMessage.addListener(messageListener);
+        chromeApi.runtime.onMessage.addListener(messageListener);
         isListening = true;
     }
 }
@@ -28,10 +28,10 @@ function stop() {
 function dyslexiaType(type) {
     switch(type) {
         case "Phonological":
-            activatePhonological();
+            activatePhonologicalMood();
             break;
         case "Surface":
-            changeBackgroundColor("red");
+            activateSurfaceMood();
             break;
         case "Rapid naming":
             changeBackgroundColor("green");
@@ -47,7 +47,7 @@ function dyslexiaType(type) {
     }
 }
 
-function activatePhonological(){
+function activatePhonologicalMood(){
     var allText = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     var textNodes = [];
     while (allText.nextNode()) {
@@ -108,6 +108,44 @@ function activatePhonological(){
         
     }
 }
+function activateSurfaceMood(){
+    var allText = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var textNodes = [];
+    while (allText.nextNode()) {
+        textNodes.push(allText.currentNode);
+    }
+    for(let i = 0; i<parseInt(textNodes.length/2); i++){
+        changeFontSettings();
+    }
+    function changeFontSettings(){
+        const randomIndex = Math.floor(Math.random() * textNodes.length);
+        const randomTextNode = textNodes[randomIndex];
+        const textContent = randomTextNode.nodeValue.trim();
+        let words = [];
+        if (/\s+/.test(textNodes)) {
+            words = textContent.split(/\s+/);
+        }
+        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
+        if(words.length > 0){
+            for (let i = start; i < end; i++) {
+                const word = words[i];
+                const fontSettings = [
+                    { fontFamily: "Cursive" }, //  cursive font
+                    { fontFamily: "Impact" }, //  decorative font
+                    {fontFamily: "Comic Sans MS"},
+                    {fontFamily: "Papyrus"},
+                    {fontFamily: "Curlz MT"}
+                ];
+                const randomFontSetting = fontSettings[Math.floor(Math.random() * fontSettings.length)];
+            words[i] = `<span style="font-family: ${randomFontSetting.fontFamily}">${word}</span>`;
+        }
+        const newTextContent = words.join(' ');
+        randomTextNode.nodeValue = '';
+        randomTextNode.parentElement.innerHTML += newTextContent;
+        }
+    }
+}
 
 
 const messageListener = function(request, sender, sendResponse) {
@@ -116,7 +154,7 @@ const messageListener = function(request, sender, sendResponse) {
     }
 };
 
-chrome.runtime.onMessage.addListener(messageListener);
+chromeApi.runtime.onMessage.addListener(messageListener);
 
 module.exports = {
     start,
