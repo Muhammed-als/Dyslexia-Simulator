@@ -1,8 +1,8 @@
-//const chromeApi = require('./chromeApi');
+const chromeApi = require("./chromeApi");
 
 let isListening = false;
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.type === "stop") {
         stop();
     }
@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 function start() {
     if (!isListening) {
-        chrome.runtime.onMessage.addListener(messageListener);
+        chromeApi.runtime.onMessage.addListener(messageListener);
         isListening = true;
     }
 }
@@ -154,7 +154,7 @@ const messageListener = function(request, sender, sendResponse) {
     }
 };
 
-chrome.runtime.onMessage.addListener(messageListener);
+chromeApi.runtime.onMessage.addListener(messageListener);
 
 module.exports = {
     start,

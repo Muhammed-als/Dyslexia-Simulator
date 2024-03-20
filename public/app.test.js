@@ -36,12 +36,23 @@ global.NodeFilter = {
       jest.clearAllMocks();
     });
   
-    test('Test different types of dyslexia', () => {
-      const originalText = '<div id="test">Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills. Dyslexia is not a learning disability that a child will outgrow, so it’s important to pursue a diagnosis and implement strategies to improve reading ability at a young age. Anyone can be diagnosed with dyslexia, although the dyslexia test process is different for adults than it is for children. Often, individuals with dyslexia can be very creative and intelligent yet struggle with basic reading skills.</div>';
+    test('Test Phonological dyslexia', () => {
+      const originalText = '<div id="test">Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.</div>';
       document.body.innerHTML = originalText;
       dyslexiaType("Phonological");
       const textNode = document.querySelector('#test');
       expect(textNode.textContent).not.toBe(originalText);
     });
+    test('Test Surface dyslexia', () => {
+        const originalText = 'Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.';
+        document.body.innerHTML = originalText;
+        dyslexiaType("Surface");
+        const modifiedTextNodes = document.querySelectorAll('span');
+        
+        // The modified words will have a span tag with font-family css key-value, therefore it is expected for the modified text to have fontFamily
+        modifiedTextNodes.forEach(node => {
+            expect(node.style.fontFamily).toBeTruthy();
+        });
+      });
   });
   
