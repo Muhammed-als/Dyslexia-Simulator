@@ -52,6 +52,8 @@ global.NodeFilter = {
         // The modified words will have a span tag with font-family css key-value, therefore it is expected for the modified text to have fontFamily
         modifiedTextNodes.forEach(node => {
             expect(node.style.fontFamily).toBeTruthy();
+            expect(node.style.opacity).toBeTruthy();
+            expect(node.style.filter).toContain('blur');
         });
       });
   });
