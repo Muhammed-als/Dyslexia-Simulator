@@ -55,6 +55,15 @@ global.NodeFilter = {
             expect(node.style.opacity).toBeTruthy();
             expect(node.style.filter).toContain('blur');
         });
+    });
+    test('Test Rapid naming dyslexia', () => {
+      const originalText = 'Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.';
+      document.body.innerHTML = originalText;
+      dyslexiaType("Rapid naming");
+      const modifiedTextNodes = document.querySelectorAll('span');
+      modifiedTextNodes.forEach(node => {
+          expect(node.style.color).toBeTruthy();
       });
+    });
   });
   

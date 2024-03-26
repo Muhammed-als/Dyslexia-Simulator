@@ -34,7 +34,7 @@ function dyslexiaType(type) {
             activateSurfaceMood();
             break;
         case "Rapid naming":
-            changeBackgroundColor("green");
+            actiavateRapidNamingMood();
             break;
         case "Visual":
             changeBackgroundColor("yellow");
@@ -139,11 +139,11 @@ function activateSurfaceMood(){
                     {fontFamily: "Curlz MT"}
                 ];
                 const randomFontSetting = fontSettings[Math.floor(Math.random() * fontSettings.length)];
-            words[i] = `<span style="font-family: ${randomFontSetting.fontFamily}">${word}</span>`;
-        }
-        const newTextContent = words.join(' ');
-        randomTextNode.nodeValue = '';
-        randomTextNode.parentElement.innerHTML += newTextContent;
+                words[i] = `<span style="font-family: ${randomFontSetting.fontFamily}">${word}</span>`;
+            }
+            const newTextContent = words.join(' ');
+            randomTextNode.nodeValue = '';
+            randomTextNode.parentElement.innerHTML += newTextContent;
         }
     }
     function applyBlurEffect() {
@@ -174,6 +174,64 @@ function activateSurfaceMood(){
         }
     }
     
+}
+
+function actiavateRapidNamingMood(){
+    var allText = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var textNodes = [];
+    while (allText.nextNode()) {
+        textNodes.push(allText.currentNode);
+    }
+    for(let i = 0; i<parseInt(textNodes.length/2); i++){
+        changeAppearanceOfText();
+        applyWarpEffect();
+    }
+    function changeAppearanceOfText(){
+        const randomIndex = Math.floor(Math.random() * textNodes.length);
+        const randomTextNode = textNodes[randomIndex];
+        const textContent = randomTextNode.nodeValue.trim();
+        let words = [];
+        if (/\s+/.test(textNodes)) {
+            words = textContent.split(/\s+/);
+        }
+        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
+        if(words.length > 0){
+            for (let i = start; i < end; i++) {
+                const word = words[i];
+                const colors = [
+                    "red",
+                    "green",
+                    "blue",
+                    "brown",
+                    "black",
+                    "yellow",
+                    "gray",
+                    "purple",
+                    "orange"
+                ];
+                const wordToLowerCase = words[i].toLowerCase();
+                if(colors.includes(wordToLowerCase)){
+                    let newColors = colors.filter(color => color !== wordToLowerCase);
+                    let randomColor = newColors[Math.floor(Math.random() * newColors.length)];
+                    words[i] = `<span style="color: ${randomColor}">${word}</span>`;
+                }
+                else{
+                    let randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    words[i] = `<span style="color: ${randomColor}">${word}</span>`;
+                }
+            }
+            const newTextContent = words.join(' ');
+            if (randomTextNode.parentElement) {
+                let span = document.createElement('span');
+                span.innerHTML = newTextContent;
+                randomTextNode.parentNode.replaceChild(span, randomTextNode);
+            }
+        }
+    }
+    function applyWarpEffect(){
+
+    }
 }
 
 
