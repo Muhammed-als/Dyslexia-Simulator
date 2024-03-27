@@ -63,6 +63,7 @@ global.NodeFilter = {
       const modifiedTextNodes = document.querySelectorAll('span');
       modifiedTextNodes.forEach(node => {
           expect(node.style.color).toBeTruthy();
+          expect(node.style.transform).toBeTruthy();
       });
     });
   });
