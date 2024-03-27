@@ -1,4 +1,4 @@
-const chromeApi = require("./chromeApi");
+const chromeApi = require('./chromeApi');
 
 let isListening = false;
 
@@ -223,24 +223,51 @@ function actiavateRapidNamingMood(){
             }
             const newTextContent = words.join(' ');
             if (randomTextNode.parentElement) {
-                let span = document.createElement('span');
-                span.innerHTML = newTextContent;
-                randomTextNode.parentNode.replaceChild(span, randomTextNode);
+                let newDiv = document.createElement('span');
+                newDiv.style.display = "inline-block";
+                newDiv.innerHTML = newTextContent;
+                randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
             }
         }
     }
     function applyWarpEffect(){
+        const randomIndex = Math.floor(Math.random() * textNodes.length);
+        const randomTextNode = textNodes[randomIndex];
+        const textContent = randomTextNode.nodeValue.trim();
+        let words = [];
+        if (/\s+/.test(textNodes)) {
+            words = textContent.split(/\s+/);
+        }
+        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
+        if(words.length > 0){
+            for (let i = start; i < end; i++) {
+                let startRotating = -10;
+                let newWord = '';
+                for (let j = 0; j < words[i].length; j++) {
+                    newWord += `<span style="display: inline-block; transform: rotate(${startRotating}deg);">${words[i][j]}</span>`;
+                    startRotating += 5;
+                }
+                words[i] = newWord;
+            }
+            const newTextContent = words.join(' ');
+            if (randomTextNode.parentElement) {
+                let newDiv = document.createElement('span');
+                newDiv.style.display = "inline-block";
+                newDiv.style.transformOrigin = "bottom center";
+                newDiv.style.transition = "transform 0.3s";
+                newDiv.innerHTML = newTextContent;
+                randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
+            }
+        }
 
     }
 }
-
-
 const messageListener = function(request, sender, sendResponse) {
     if (request.type) {
         dyslexiaType(request.type); 
     }
 };
-
 chromeApi.runtime.onMessage.addListener(messageListener);
 
 module.exports = {
