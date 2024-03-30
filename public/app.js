@@ -37,7 +37,7 @@ function dyslexiaType(type) {
             actiavateRapidNamingMood();
             break;
         case "Visual":
-            changeBackgroundColor("yellow");
+            activateVisualMood();
             break;
         case "Double Deficit":
             changeBackgroundColor("brown");
@@ -261,6 +261,48 @@ function actiavateRapidNamingMood(){
             }
         }
 
+    }
+}
+function activateVisualMood(){
+    var allText = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var textNodes = [];
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes wordMovement {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(5px); }
+        }
+    `;
+    document.head.appendChild(style);
+    while (allText.nextNode()) {
+        textNodes.push(allText.currentNode);
+    }
+    for(let i = 0; i<parseInt(textNodes.length/2); i++){
+        applyWordMovement();
+    }
+    function applyWordMovement(){
+        const randomIndex = Math.floor(Math.random() * textNodes.length);
+        const randomTextNode = textNodes[randomIndex];
+        const textContent = randomTextNode.nodeValue.trim();
+        let words = textContent.split(/\s+/);
+        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let end = Math.floor(Math.random() * (words.length - start)) + start;
+    
+        for (let i = 0; i < words.length; i++) {
+            if (i >= start && i <= end) {
+                words[i] = `<span style="position:relative; display:inline-block; animation: wordMovement 2s infinite alternate;">${words[i]}</span>`;
+            } else {
+                words[i] = `<span>${words[i]}</span>`; 
+            }
+        }
+    
+        const newTextContent = words.join(' ');
+        if (randomTextNode.parentElement) {
+            let newDiv = document.createElement('span');
+            newDiv.style.display = "inline-block";
+            newDiv.innerHTML = newTextContent;
+            randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
+        }
     }
 }
 const messageListener = function(request, sender, sendResponse) {
