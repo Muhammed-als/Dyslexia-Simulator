@@ -1,4 +1,4 @@
-const chromeApi = require("../dist/chromeApi");
+const chromeApi = require('./chromeApi');
 
 let isListening = false;
 
@@ -280,6 +280,7 @@ function activateVisualMood(){
     for(let i = 0; i<parseInt(textNodes.length/2); i++){
         applyWordMovement();
         displayTheMirrorOfLetter();
+        rearrangeLetters();
     }
     function applyWordMovement(){
         const randomIndex = Math.floor(Math.random() * textNodes.length);
@@ -323,7 +324,30 @@ function activateVisualMood(){
                 newDiv.style.display = "inline-block";
                 newDiv.style.transformOrigin = "bottom center";
                 newDiv.style.transition = "transform 0.3s";
-                newDiv.textContent = newTextContent; // Use textContent for better security and performance
+                newDiv.textContent = newTextContent;
+                randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
+            }
+        }
+    }
+    function rearrangeLetters(){
+        const randomIndex = Math.floor(Math.random() * textNodes.length);
+        const randomTextNode = textNodes[randomIndex];
+        const textContent = randomTextNode.nodeValue.trim();
+        let words = [];
+        if (/\s+/.test(textNodes)) {
+            words = textContent.split(/\s+/);
+        }
+        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
+        if(words.length > 0){
+            words = words.map(word => switchLetters(word));
+            const newTextContent = words.join(' ');
+            if (randomTextNode.parentElement) {
+                let newDiv = document.createElement('span');
+                newDiv.style.display = "inline-block";
+                newDiv.style.transformOrigin = "bottom center";
+                newDiv.style.transition = "transform 0.3s";
+                newDiv.textContent = newTextContent;
                 randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
             }
         }
@@ -338,6 +362,17 @@ function mirrorWord(word){
     };
     return word.split('').map(letter => mirrorLetters[letter] || letter).join('');
 }
+function switchLetters(word){
+    if (word.length < 2) {
+        return word;
+    }
+    let letters = word.split('');
+    let firstLetter = letters[0];
+    let lastLetter = letters[letters.length - 1];
+    letters[0] = lastLetter;
+    letters[letters.length - 1] = firstLetter;
+    return letters.join(''); 
+}
 const messageListener = function(request, sender, sendResponse) {
     if (request.type) {
         dyslexiaType(request.type); 
@@ -349,6 +384,7 @@ module.exports = {
     start,
     stop,
     dyslexiaType,
-    mirrorWord
+    mirrorWord,
+    switchLetters
 
 };
