@@ -1,4 +1,4 @@
-const chromeApi = require('./chromeApi');
+const chromeApi = require("../dist/chromeApi");
 
 let isListening = false;
 
@@ -279,6 +279,7 @@ function activateVisualMood(){
     }
     for(let i = 0; i<parseInt(textNodes.length/2); i++){
         applyWordMovement();
+        displayTheMirrorOfLetter();
     }
     function applyWordMovement(){
         const randomIndex = Math.floor(Math.random() * textNodes.length);
@@ -304,6 +305,38 @@ function activateVisualMood(){
             randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
         }
     }
+    function displayTheMirrorOfLetter(){
+        const randomIndex = Math.floor(Math.random() * textNodes.length);
+        const randomTextNode = textNodes[randomIndex];
+        const textContent = randomTextNode.nodeValue.trim();
+        let words = [];
+        if (/\s+/.test(textNodes)) {
+            words = textContent.split(/\s+/);
+        }
+        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
+        if(words.length > 0){
+            words = words.map(word => mirrorWord(word));
+            const newTextContent = words.join(' ');
+            if (randomTextNode.parentElement) {
+                let newDiv = document.createElement('span');
+                newDiv.style.display = "inline-block";
+                newDiv.style.transformOrigin = "bottom center";
+                newDiv.style.transition = "transform 0.3s";
+                newDiv.textContent = newTextContent; // Use textContent for better security and performance
+                randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
+            }
+        }
+    }
+}
+function mirrorWord(word){
+    const mirrorLetters = {
+        "b" : "d",
+        "d" : "b",
+        "q" : "p",
+        "p" : "q"
+    };
+    return word.split('').map(letter => mirrorLetters[letter] || letter).join('');
 }
 const messageListener = function(request, sender, sendResponse) {
     if (request.type) {
@@ -315,5 +348,7 @@ chromeApi.runtime.onMessage.addListener(messageListener);
 module.exports = {
     start,
     stop,
-    dyslexiaType
+    dyslexiaType,
+    mirrorWord
+
 };

@@ -4,7 +4,7 @@ global.NodeFilter = {
     FILTER_ACCEPT: 1,
   };
   const { JSDOM } = require('jsdom');
-  const { start, stop, dyslexiaType } = require('./app.js');
+  const { start, stop, dyslexiaType, mirrorWord} = require('./app.js');
   const chromeApi = require('./chromeApi.js');
   
   jest.mock('./chromeApi.js', () => ({
@@ -74,6 +74,10 @@ global.NodeFilter = {
       modifiedTextNodes.forEach(node => {
           expect(node.style.animation).toBeTruthy();
       });
+      const input = "badpq";
+      const expected = "dabqp";
+      const mirrored = mirrorWord(input); // Assuming this function exists and is accessible
+      expect(mirrored).toBe(expected);
 
     })
   });
