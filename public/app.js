@@ -1,4 +1,4 @@
-const chromeApi = require('./chromeApi');
+const chromeApi = require("./chromeApi");
 
 let isListening = false;
 
@@ -40,7 +40,7 @@ function dyslexiaType(type) {
             activateVisualMood();
             break;
         case "Double Deficit":
-            changeBackgroundColor("brown");
+            activateDoubleDeficitMood();
             break;
         default:
             break;
@@ -352,6 +352,10 @@ function activateVisualMood(){
             }
         }
     }
+}
+function activateDoubleDeficitMood(){
+    activatePhonologicalMood();
+    actiavateRapidNamingMood();
 }
 function mirrorWord(word){
     const mirrorLetters = {
