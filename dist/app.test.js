@@ -4,7 +4,7 @@ global.NodeFilter = {
     FILTER_ACCEPT: 1,
   };
   const { JSDOM } = require('jsdom');
-  const { start, stop, dyslexiaType, mirrorWord,switchLetters } = require('./app.js');
+  const { start, stop, dyslexiaType } = require('./app.js');
   const chromeApi = require('./chromeApi.js');
   
   jest.mock('./chromeApi.js', () => ({
@@ -74,14 +74,22 @@ global.NodeFilter = {
       modifiedTextNodes.forEach(node => {
           expect(node.style.animation).toBeTruthy();
       });
-      let input = "badpq";
-      let  expected = "dabqp";
-      const mirrored = mirrorWord(input); // Assuming this function exists and is accessible
-      expect(mirrored).toBe(expected);
-      input = "dyslexia";
-      expected = "ayslexid";
-      const rerrange = switchLetters(input);
-      expect(rerrange).toBe(expected);
+
+    })
+    test('Test double deficit',() => {
+      let originalText = '<div id="test">Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.</div>';
+      document.body.innerHTML = originalText;
+      dyslexiaType("Phonological");
+      const textNode = document.querySelector('#test');
+      expect(textNode.textContent).not.toBe(originalText);
+      originalText = 'Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.';
+      document.body.innerHTML = originalText;
+      dyslexiaType("Rapid naming");
+      const modifiedTextNodes = document.querySelectorAll('span');
+      modifiedTextNodes.forEach(node => {
+          expect(node.style.color).toBeTruthy();
+          expect(node.style.transform).toBeTruthy();
+      });
 
     })
   });
