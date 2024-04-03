@@ -1,0 +1,10 @@
+@startuml surface
+start
+
+:The simulator adjusts font settings randomly;
+:Change font size, style, or rotation;
+:Apply blur effect to the text;
+:Apply changes to text;
+
+stop
+@enduml

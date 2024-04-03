@@ -1,0 +1,8 @@
+@startuml Phonological
+start
+
+:The simulator choose words from the presented text;
+:Break down words into individual sounds;
+:Apply changes to text;
+stop
+@enduml

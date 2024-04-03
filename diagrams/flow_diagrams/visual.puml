@@ -1,0 +1,10 @@
+@startuml Visual
+start
+
+:The simulator choose some lines;
+:Manipulate the positions of the lines;
+:Choose some specific words from the lines;
+:Transform the presented letters in a word into their mirror;
+:Rearrange letters within a word;
+stop
+@enduml

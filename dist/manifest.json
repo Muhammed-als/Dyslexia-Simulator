@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "Dyslexia Simulator",
+    "description": "See life through the eyes of someone with dyslexia. Try the Chrome extension to understand challenges and the help digital tools provide.",
+    "version": "1.0",
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "content_scripts": [
+      {
+        "matches": [
+          "<all_urls>"
+        ],
+        "js": ["app.js"]
+      }
+    ]
+      
+  }
