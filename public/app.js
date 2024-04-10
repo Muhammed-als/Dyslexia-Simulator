@@ -1,30 +1,18 @@
-const chromeApi = require("./chromeApi");
-
 let isListening = false;
-
-chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+const messageListener = function(request, sender, sendResponse) {
+    if (request.type) {
+        console.log(request.type);
+    }
+};
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.type === "stop") {
         stop();
     }
     else{
         start();
+        dyslexiaType(request.type); 
     }
 });
-
-function start() {
-    if (!isListening) {
-        chromeApi.runtime.onMessage.addListener(messageListener);
-        isListening = true;
-    }
-}
-
-function stop() {
-    if (isListening) {
-       /*  chromeApi.runtime.onMessage.removeListener(messageListener); */
-        isListening = false;
-    }
-}
-
 function dyslexiaType(type) {
     switch(type) {
         case "Phonological":
@@ -46,13 +34,51 @@ function dyslexiaType(type) {
             break;
     }
 }
+function start() {
+    if (!isListening) {
+        chrome.runtime.onMessage.addListener(messageListener);
+        isListening = true;
+    }
+}
 
-function activatePhonologicalMood(){
+function stop() {
+    if (isListening) {
+        chrome.runtime.onMessage.removeListener(messageListener);
+        isListening = false;
+        var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
+        if (originalTexts) {
+            document.body.innerHTML = originalTexts.bodyContent;
+            localStorage.removeItem('originalTexts');
+            console.log("Page content restored from local storage.");
+        } else {
+            console.log("No stored content found.");
+        }
+    }
+}
+
+function collectTextNodes() {
     var allText = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     var textNodes = [];
     while (allText.nextNode()) {
-        textNodes.push(allText.currentNode);
+        var currentNode = allText.currentNode;
+        currentNode.originalText = currentNode.nodeValue; 
+        textNodes.push(currentNode);
     }
+    var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
+    if (!originalTexts) {
+        originalTexts = {};
+    }
+    originalTexts.bodyContent = document.body.innerHTML;
+    localStorage.setItem('originalTexts', JSON.stringify(originalTexts));
+    return textNodes;
+}
+
+
+
+
+function activatePhonologicalMood(){
+    var textNodes = [];
+    textNodes = collectTextNodes();
     for(let i = 0; i<parseInt(textNodes.length/2); i++){
         combineWords();
         createUnfamiliarWords();
@@ -70,7 +96,7 @@ function activatePhonologicalMood(){
         if(words.length > 0){
             for (let i = start; i < end; i++) {
                 if(words[i + 1]){
-                    words[i] = words[i] + ' ' + words[i + 1];
+                    words[i] = words[i] + '' + words[i + 1];
                     words.splice(i + 1, 1); // Remove the next word at index i + 1
                 }
                 
@@ -109,11 +135,8 @@ function activatePhonologicalMood(){
     }
 }
 function activateSurfaceMood(){
-    var allText = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     var textNodes = [];
-    while (allText.nextNode()) {
-        textNodes.push(allText.currentNode);
-    }
+    textNodes = collectTextNodes();
     for(let i = 0; i<parseInt(textNodes.length/2); i++){
         changeFontSettings();
         applyBlurEffect();
@@ -132,8 +155,8 @@ function activateSurfaceMood(){
             for (let i = start; i < end; i++) {
                 const word = words[i];
                 const fontSettings = [
-                    { fontFamily: "Cursive" }, //  cursive font
-                    { fontFamily: "Impact" }, //  decorative font
+                    { fontFamily: "Cursive" },
+                    { fontFamily: "Impact" },
                     {fontFamily: "Comic Sans MS"},
                     {fontFamily: "Papyrus"},
                     {fontFamily: "Curlz MT"}
@@ -142,8 +165,12 @@ function activateSurfaceMood(){
                 words[i] = `<span style="font-family: ${randomFontSetting.fontFamily}">${word}</span>`;
             }
             const newTextContent = words.join(' ');
-            randomTextNode.nodeValue = '';
-            randomTextNode.parentElement.innerHTML += newTextContent;
+            if (randomTextNode.parentElement) {
+                let newDiv = document.createElement('span');
+                newDiv.style.display = "inline-block";
+                newDiv.innerHTML = newTextContent;
+                randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
+            }
         }
     }
     function applyBlurEffect() {
@@ -169,19 +196,20 @@ function activateSurfaceMood(){
                 words[i] = newWord;
             }
             const newTextContent = words.join(' ');
-            randomTextNode.nodeValue = '';
-            randomTextNode.parentElement.innerHTML += newTextContent;
+            if (randomTextNode.parentElement) {
+                let newDiv = document.createElement('span');
+                newDiv.style.display = "inline-block";
+                newDiv.innerHTML = newTextContent;
+                randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
+            }
         }
     }
     
 }
 
 function actiavateRapidNamingMood(){
-    var allText = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     var textNodes = [];
-    while (allText.nextNode()) {
-        textNodes.push(allText.currentNode);
-    }
+    textNodes = collectTextNodes();
     for(let i = 0; i<parseInt(textNodes.length/2); i++){
         changeAppearanceOfText();
         applyWarpEffect();
@@ -264,8 +292,6 @@ function actiavateRapidNamingMood(){
     }
 }
 function activateVisualMood(){
-    var allText = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-    var textNodes = [];
     const style = document.createElement('style');
     style.innerHTML = `
         @keyframes wordMovement {
@@ -274,9 +300,8 @@ function activateVisualMood(){
         }
     `;
     document.head.appendChild(style);
-    while (allText.nextNode()) {
-        textNodes.push(allText.currentNode);
-    }
+    var textNodes = [];
+    textNodes = collectTextNodes();
     for(let i = 0; i<parseInt(textNodes.length/2); i++){
         applyWordMovement();
         displayTheMirrorOfLetter();
@@ -377,18 +402,11 @@ function switchLetters(word){
     letters[letters.length - 1] = firstLetter;
     return letters.join(''); 
 }
-const messageListener = function(request, sender, sendResponse) {
-    if (request.type) {
-        dyslexiaType(request.type); 
-    }
-};
-chromeApi.runtime.onMessage.addListener(messageListener);
-
-module.exports = {
+/* module.exports = {
     start,
     stop,
     dyslexiaType,
     mirrorWord,
     switchLetters
 
-};
+}; */
