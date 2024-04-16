@@ -1,11 +1,12 @@
+const  chromeApi = require("../dist/chromeApi");
+
 let isListening = false;
 const messageListener = function(request, sender, sendResponse) {
     if (request.type) {
         console.log(request.type);
     }
 };
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log();
+chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.type === "stop") {
         stop();
     }
@@ -37,14 +38,14 @@ function dyslexiaType(type,diffuculty) {
 }
 function start() {
     if (!isListening) {
-        chrome.runtime.onMessage.addListener(messageListener);
+        chromeApi.runtime.onMessage.addListener(messageListener);
         isListening = true;
     }
 }
 
 function stop() {
     if (isListening) {
-        chrome.runtime.onMessage.removeListener(messageListener);
+        chromeApi.runtime.onMessage.removeListener(messageListener);
         isListening = false;
         var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
         if (originalTexts) {
@@ -407,11 +408,12 @@ function switchLetters(word){
     letters[letters.length - 1] = firstLetter;
     return letters.join(''); 
 }
-/* module.exports = {
+module.exports = {
     start,
     stop,
     dyslexiaType,
+    collectTextNodes,
     mirrorWord,
     switchLetters
 
-}; */
+};
