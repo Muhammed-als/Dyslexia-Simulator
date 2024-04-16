@@ -9,17 +9,34 @@ import DoubleDeficit from "./components/doubleDeficit.jsx";
 
 function Popup () {
     const [selectedType, setSelectedType] = useState(null);
+    const [difficultyLevels, setDifficultyLevels] = useState({
+        "Phonological": 1,
+        "Surface": 1,
+        "Rapid_naming": 1,
+        "Visual": 1,
+        "Double_Deficit": 1
+    });
     const [changeButton, setChangedButton] = useState("start");
 
     const sendMessageToContentScript = (type) => {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            chrome.tabs.sendMessage(tabs[0].id, {type: type});
+            chrome.tabs.sendMessage(tabs[0].id, {
+                type: type,
+                diffuculty: difficultyLevels
+            });
         });
     };
 
     const handleTypeChange = (event) => {
-        setSelectedType(event.target.value);
+        const newType = event.target.value;
+        setSelectedType(newType);
     };
+
+    const handleDifficultyChanging = (event) => {
+        const newDifficulty = event.target.value;
+        // parse as an integer with base 10,
+        setDifficultyLevels(prev => ({ ...prev, [selectedType]: parseInt(newDifficulty, 10) }));
+    }
 
     const handleChangingButton = () => {
         if (changeButton === "start") {
@@ -53,26 +70,19 @@ function Popup () {
             <h1 className="title"><i>Dyslexia Simulator</i></h1>
             <h2><strong>Select a Dyslexia type</strong></h2>
             <div className="types">
-                <div>
-                    <label>Phonological</label>
-                    <input type="radio" name="phonological" id="phonological" value="Phonological" checked={selectedType === "Phonological"} onChange={handleTypeChange} />
-                </div>
-                <div>
-                    <label>Surface</label>
-                    <input type="radio" name="Surface" id="Surface" value="Surface" checked={selectedType === "Surface"} onChange={handleTypeChange} />
-                </div>
-                <div>
-                    <label>Rapid naming</label>
-                    <input type="radio" name="Rapid_naming" id="Rapid_naming" value="Rapid naming" checked={selectedType === "Rapid naming"} onChange={handleTypeChange} />
-                </div>
-                <div>
-                    <label>Visual</label>
-                    <input type="radio" name="Visual" id="Visual" value="Visual" checked={selectedType === "Visual"} onChange={handleTypeChange} />
-                </div>
-                <div>
-                    <label>Double Deficit</label>
-                    <input type="radio" name="Double_Deficit" id="Double_Deficit" value="Double Deficit" checked={selectedType === "Double Deficit"} onChange={handleTypeChange} />
-                </div>
+                {["Phonological", "Surface", "Rapid naming", "Visual", "Double Deficit"].map((type) => (
+                    <div className="type" key={type}>
+                        <label>{type}</label>
+                        {selectedType === type && (
+                            <div className="difficutly">
+                                <p className="minValue">1</p>
+                                <input type="range" min="1" max="5" value={difficultyLevels[type]} onChange={handleDifficultyChanging} />
+                                <p className="maxValue">5</p>
+                            </div>
+                        )}
+                        <input type="radio" name="type" id={type} value={type} checked={selectedType === type} onChange={handleTypeChange} />
+                    </div>
+                ))}
             </div>
             <div className="separateLine"></div>
             <div className="description">
