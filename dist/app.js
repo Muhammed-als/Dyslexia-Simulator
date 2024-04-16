@@ -5,30 +5,31 @@ const messageListener = function(request, sender, sendResponse) {
     }
 };
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log();
     if (request.type === "stop") {
         stop();
     }
     else{
         start();
-        dyslexiaType(request.type); 
+        dyslexiaType(request.type,request.diffuculty); 
     }
 });
-function dyslexiaType(type) {
+function dyslexiaType(type,diffuculty) {
     switch(type) {
         case "Phonological":
-            activatePhonologicalMood();
+            activatePhonologicalMood(diffuculty.Phonological);
             break;
         case "Surface":
-            activateSurfaceMood();
+            activateSurfaceMood(diffuculty.Surface);
             break;
         case "Rapid naming":
-            actiavateRapidNamingMood();
+            actiavateRapidNamingMood(diffuculty.Rapid_naming);
             break;
         case "Visual":
-            activateVisualMood();
+            activateVisualMood(diffuculty.Visual);
             break;
         case "Double Deficit":
-            activateDoubleDeficitMood();
+            activateDoubleDeficitMood(diffuculty.Double_Deficit);
             break;
         default:
             break;
@@ -76,10 +77,11 @@ function collectTextNodes() {
 
 
 
-function activatePhonologicalMood(){
+function activatePhonologicalMood(difficulty){
     var textNodes = [];
     textNodes = collectTextNodes();
-    for(let i = 0; i<parseInt(textNodes.length/2); i++){
+    const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
+    for(let i = 0; i<numModifications; i++){
         combineWords();
         createUnfamiliarWords();
     }
@@ -134,10 +136,11 @@ function activatePhonologicalMood(){
         
     }
 }
-function activateSurfaceMood(){
+function activateSurfaceMood(difficulty){
     var textNodes = [];
     textNodes = collectTextNodes();
-    for(let i = 0; i<parseInt(textNodes.length/2); i++){
+    const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
+    for(let i = 0; i<numModifications; i++){
         changeFontSettings();
         applyBlurEffect();
     }
@@ -207,10 +210,11 @@ function activateSurfaceMood(){
     
 }
 
-function actiavateRapidNamingMood(){
+function actiavateRapidNamingMood(difficulty){
     var textNodes = [];
     textNodes = collectTextNodes();
-    for(let i = 0; i<parseInt(textNodes.length/2); i++){
+    const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
+    for(let i = 0; i<numModifications; i++){
         changeAppearanceOfText();
         applyWarpEffect();
     }
@@ -291,7 +295,7 @@ function actiavateRapidNamingMood(){
 
     }
 }
-function activateVisualMood(){
+function activateVisualMood(difficulty){
     const style = document.createElement('style');
     style.innerHTML = `
         @keyframes wordMovement {
@@ -302,7 +306,8 @@ function activateVisualMood(){
     document.head.appendChild(style);
     var textNodes = [];
     textNodes = collectTextNodes();
-    for(let i = 0; i<parseInt(textNodes.length/2); i++){
+    const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
+    for(let i = 0; i<numModifications; i++){
         applyWordMovement();
         displayTheMirrorOfLetter();
         rearrangeLetters();
@@ -378,9 +383,9 @@ function activateVisualMood(){
         }
     }
 }
-function activateDoubleDeficitMood(){
-    activatePhonologicalMood();
-    actiavateRapidNamingMood();
+function activateDoubleDeficitMood(difficulty){
+    activatePhonologicalMood(difficulty);
+    actiavateRapidNamingMood(difficulty);
 }
 function mirrorWord(word){
     const mirrorLetters = {

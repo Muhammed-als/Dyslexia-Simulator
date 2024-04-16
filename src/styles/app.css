@@ -41,21 +41,18 @@ body{
     align-items: center;
     width: 100%;
 }
-
-.types div{
+.types .type{
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
-    gap: 5px;
     width: 100%;
 }
+
 .types div label{
     font-size: large;
 }
-.types div input{
-    margin-left : auto;
-}
+
 .extension-container .buttons{
     display: flex;
     flex-direction: row;
@@ -114,3 +111,17 @@ body{
 .extension-container .hide{
     display: none;
 }
+.extension-container .difficutly{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.extension-container .difficutly .minValue{
+    margin-right: 2%;
+}
+.extension-container .difficutly .maxValue{
+    margin-left: 2%;
+}
+
