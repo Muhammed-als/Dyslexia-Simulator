@@ -4,7 +4,7 @@ global.NodeFilter = {
     FILTER_ACCEPT: 1,
   };
   const { JSDOM } = require('jsdom');
-  const { dyslexiaType } = require('./app.js');
+  const { start, stop, dyslexiaType } = require('./app.js');
   const chromeApi = require('./chromeApi.js');
   
   jest.mock('./chromeApi.js', () => ({
@@ -16,64 +16,37 @@ global.NodeFilter = {
       sendMessage: jest.fn(),
     },
   }));
-  // Mock localStorage
-const localStorageMock = (() => {
-  let store = {};
-  return {
-    getItem: function(key) {
-      return store[key] || null;
-    },
-    setItem: function(key, value) {
-      store[key] = value.toString();
-    },
-    clear: function() {
-      store = {};
-    },
-    removeItem: function(key) {
-      delete store[key];
-    }
-  };
-})();
-
-Object.defineProperty(global, 'localStorage', { value: localStorageMock });
-
-describe('Extension testing', () => {
-  let originalDocument;
-  let difficulties = {}; 
-
-  beforeAll(() => {
-    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-    global.document = dom.window.document;
-    originalDocument = global.document.documentElement.innerHTML;
-    difficulties = {
-      "Phonological": 1,
-      "Surface": 1,
-      "Rapid_naming": 1,
-      "Visual": 1,
-      "Double_Deficit": 1
-    }
-  });
-
-  afterAll(() => {
-    delete global.document;
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-    localStorageMock.clear();
-  });
+  
+  describe('Extension testing', () => {
+    let originalDocument;
+  
+    beforeAll(() => {
+      // Setup a simulated DOM environment
+      const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+      global.document = dom.window.document;
+      originalDocument = global.document.documentElement.innerHTML;
+    });
+  
+    afterAll(() => {
+      // Clean up the simulated DOM environment
+      delete global.document;
+    });
+  
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
   
     test('Test Phonological dyslexia', () => {
       const originalText = '<div id="test">Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.</div>';
       document.body.innerHTML = originalText;
-      dyslexiaType("Phonological",{Phonological: 1});
+      dyslexiaType("Phonological");
       const textNode = document.querySelector('#test');
       expect(textNode.textContent).not.toBe(originalText);
     });
     test('Test Surface dyslexia', () => {
         const originalText = 'Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.';
         document.body.innerHTML = originalText;
-        dyslexiaType("Surface",{Surface: 1});
+        dyslexiaType("Surface");
         const modifiedTextNodes = document.querySelectorAll('span');
         
         // The modified words will have a span tag with font-family css key-value, therefore it is expected for the modified text to have fontFamily
@@ -86,7 +59,7 @@ describe('Extension testing', () => {
     test('Test Rapid naming dyslexia', () => {
       const originalText = 'Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.';
       document.body.innerHTML = originalText;
-      dyslexiaType("Rapid naming",{Rapid_naming: 1});
+      dyslexiaType("Rapid naming");
       const modifiedTextNodes = document.querySelectorAll('span');
       modifiedTextNodes.forEach(node => {
           expect(node.style.color).toBeTruthy();
@@ -96,18 +69,11 @@ describe('Extension testing', () => {
     test('Test Visual dyslexia',() => {
       const originalText = 'Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.';
       document.body.innerHTML = originalText;
-      dyslexiaType("Visual",{Visual: 1});
+      dyslexiaType("Visual");
       const modifiedTextNodes = document.querySelectorAll('span');
       modifiedTextNodes.forEach(node => {
           expect(node.style.animation).toBeTruthy();
       });
-
-    })
-    test('Test difficulty',() => {
-      const list = ['a','b','c','d','e','f','g'];
-      const difficulty = 3;
-      const numModifications = Math.ceil(list.length * (difficulty / 10));
-      expect(numModifications).toBe(3); // It is 3 modifications based on calculations
 
     })
   });

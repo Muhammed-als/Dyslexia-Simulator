@@ -1,12 +1,19 @@
-const  chromeApi = require("../dist/chromeApi");
-
 let isListening = false;
 const messageListener = function(request, sender, sendResponse) {
-    if (request.type) {
-        console.log(request.type);
-    }
+    return request.type;
 };
-chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log(request);
+    if(request.type === "speak"){
+        speakText(request.settings.language, request.settings.speed);
+        
+    }
+    else if(request.type === "dont_speak" || request.type === "pause"){
+        stopSpeaking();
+    }
+    else if(request.type === "play"){
+        continueSpeaking(request.settings.language, request.settings.speed);
+    }
     if (request.type === "stop") {
         stop();
     }
@@ -15,6 +22,7 @@ chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) 
         dyslexiaType(request.type,request.diffuculty); 
     }
 });
+
 function dyslexiaType(type,diffuculty) {
     switch(type) {
         case "Phonological":
@@ -38,14 +46,14 @@ function dyslexiaType(type,diffuculty) {
 }
 function start() {
     if (!isListening) {
-        chromeApi.runtime.onMessage.addListener(messageListener);
+        chrome.runtime.onMessage.addListener(messageListener);
         isListening = true;
     }
 }
 
 function stop() {
     if (isListening) {
-        chromeApi.runtime.onMessage.removeListener(messageListener);
+        chrome.runtime.onMessage.removeListener(messageListener);
         isListening = false;
         var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
         if (originalTexts) {
@@ -63,8 +71,10 @@ function collectTextNodes() {
     var textNodes = [];
     while (allText.nextNode()) {
         var currentNode = allText.currentNode;
-        currentNode.originalText = currentNode.nodeValue; 
-        textNodes.push(currentNode);
+        if (!isTextScriptOrStyle(currentNode)) {
+            currentNode.originalText = currentNode.nodeValue; 
+            textNodes.push(currentNode);
+        }
     }
     var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
     if (!originalTexts) {
@@ -74,6 +84,18 @@ function collectTextNodes() {
     localStorage.setItem('originalTexts', JSON.stringify(originalTexts));
     return textNodes;
 }
+
+function isTextScriptOrStyle(node) {
+    var parent = node.parentNode;
+    while (parent) {
+        if (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE') {
+            return true;
+        }
+        parent = parent.parentNode;
+    }
+    return false;
+}
+
 
 
 
@@ -408,12 +430,59 @@ function switchLetters(word){
     letters[letters.length - 1] = firstLetter;
     return letters.join(''); 
 }
-module.exports = {
+let currentUtterance;
+let currentHighLighted;  
+let textNodes = [];
+let currentIndex = 0; 
+let currentTextContent;
+function speakText(language, speed) {
+    textNodes = collectTextNodes();
+    currentIndex = 0; 
+    speakNextNode(language, speed);
+}
+function speakNextNode(language, speed) {
+    if (currentIndex < textNodes.length) {
+        const textNode = textNodes[currentIndex];
+        const textContent = textNode.nodeValue.trim();
+        if (/\s+/.test(textContent)) {
+            const utterance = new SpeechSynthesisUtterance();
+            utterance.lang = language === "English" ? "en-US" : "da-DK";
+            utterance.rate = speed;
+            utterance.text = textContent;
+            utterance.onerror = function(event) {
+                console.error("Speech synthesis error:", event.error);
+            };
+            utterance.onend = function() {
+                currentIndex++;
+                speakNextNode(language, speed);
+            };
+            speechSynthesis.speak(utterance);
+            currentUtterance = utterance;
+            currentTextContent = textContent;
+            
+        } else {
+            currentIndex++;
+            speakNextNode(language, speed);
+        }
+    }
+}
+function continueSpeaking(language, speed) {
+    speakNextNode(language, speed);
+}
+function stopSpeaking(){
+    speechSynthesis.cancel();
+}
+speechSynthesis.onresume = function() {
+    if (currentUtterance) {
+        continueSpeaking(currentUtterance.lang, currentUtterance.rate);
+    }
+};
+
+/* module.exports = {
     start,
     stop,
     dyslexiaType,
-    collectTextNodes,
     mirrorWord,
     switchLetters
 
-};
+}; */
