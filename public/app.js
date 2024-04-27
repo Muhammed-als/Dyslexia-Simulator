@@ -1,12 +1,21 @@
-const  chromeApi = require("../dist/chromeApi");
-
 let isListening = false;
 const messageListener = function(request, sender, sendResponse) {
-    if (request.type) {
-        console.log(request.type);
-    }
+    return request.type;
 };
-chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if(request.type === "speak"){
+        speakText(request.settings.language, request.settings.speed, request.settings.hihgLightedColor,request.settings.textAreaInput);
+        
+    }
+    else if(request.type === "dont_speak"){
+        stopSpeaking();
+    }
+    else if(request.type === "pause"){
+        pauseSpeaking(request.settings.textAreaInput);
+    }
+    else if(request.type === "play"){
+        continueSpeaking(request.settings.language, request.settings.speed, request.settings.hihgLightedColor,request.settings.textAreaInput);
+    }
     if (request.type === "stop") {
         stop();
     }
@@ -15,6 +24,7 @@ chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) 
         dyslexiaType(request.type,request.diffuculty); 
     }
 });
+
 function dyslexiaType(type,diffuculty) {
     switch(type) {
         case "Phonological":
@@ -38,14 +48,14 @@ function dyslexiaType(type,diffuculty) {
 }
 function start() {
     if (!isListening) {
-        chromeApi.runtime.onMessage.addListener(messageListener);
+        chrome.runtime.onMessage.addListener(messageListener);
         isListening = true;
     }
 }
 
 function stop() {
     if (isListening) {
-        chromeApi.runtime.onMessage.removeListener(messageListener);
+        chrome.runtime.onMessage.removeListener(messageListener);
         isListening = false;
         var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
         if (originalTexts) {
@@ -63,8 +73,10 @@ function collectTextNodes() {
     var textNodes = [];
     while (allText.nextNode()) {
         var currentNode = allText.currentNode;
-        currentNode.originalText = currentNode.nodeValue; 
-        textNodes.push(currentNode);
+        if (!isTextScriptOrStyle(currentNode)) {
+            currentNode.originalText = currentNode.nodeValue; 
+            textNodes.push(currentNode);
+        }
     }
     var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
     if (!originalTexts) {
@@ -74,6 +86,18 @@ function collectTextNodes() {
     localStorage.setItem('originalTexts', JSON.stringify(originalTexts));
     return textNodes;
 }
+
+function isTextScriptOrStyle(node) {
+    var parent = node.parentNode;
+    while (parent) {
+        if (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE') {
+            return true;
+        }
+        parent = parent.parentNode;
+    }
+    return false;
+}
+
 
 
 
@@ -408,12 +432,111 @@ function switchLetters(word){
     letters[letters.length - 1] = firstLetter;
     return letters.join(''); 
 }
-module.exports = {
+let currentUtterance;
+let textNodes = [];
+let currentIndex = 0; 
+let highLightedNode;
+function speakText(language, speed, hihgLightedColor, textAreaInput) {
+    if(textAreaInput.trim().length > 0){
+        speakTextAreaInput(language, speed, textAreaInput);
+    }
+    else{
+        currentIndex = 0; 
+        textNodes = collectTextNodes();
+        speakNextNode(language, speed, hihgLightedColor,textAreaInput);
+    }
+    
+}
+function speakTextAreaInput(language, speed,textAreaInput){
+    const utterance = new SpeechSynthesisUtterance();
+    utterance.lang = language === "English" ? "en-US" : "da-DK";
+    utterance.rate = speed;
+    utterance.text = textAreaInput;
+    currentUtterance = utterance;
+    speechSynthesis.speak(utterance);
+}
+function speakNextNode(language, speed, hihgLightedColor) {
+    if (currentIndex < textNodes.length) {
+        const textNode = textNodes[currentIndex];
+        const textContent = textNode.nodeValue.trim();
+        if (/\s+/.test(textContent)) {
+            const utterance = new SpeechSynthesisUtterance();
+            utterance.lang = language === "English" ? "en-US" : "da-DK";
+            utterance.rate = speed;
+            utterance.text = textContent;
+            utterance.onerror = function(event) {
+                console.error("Speech synthesis error:", event.error);
+            };
+            utterance.onstart = function() {
+                highlightWord(textNode,hihgLightedColor);
+            };
+            speechSynthesis.speak(utterance);
+            currentUtterance = utterance;
+            utterance.onend = function() {
+                // remove the highlighed after done with speaking
+                highLightedNode.parentNode.replaceChild(textNode, highLightedNode);
+                currentIndex++;
+                speakNextNode(language, speed, hihgLightedColor);
+            };
+            
+        } else {
+            currentIndex++;
+            speakNextNode(language, speed,hihgLightedColor);
+        }
+    }
+}
+function highlightWord(textNode,hihgLightedColor) {
+    const words = textNode.nodeValue.trim().split(/\s+/);
+    for(let i = 0; i<words.length; i++){
+        words[i]  = `<span style="background-color: ${hihgLightedColor}">${words[i]}</span>`
+    }
+    const container = document.createElement('span');
+    container.innerHTML = words.join(' ');
+    textNode.parentNode.replaceChild(container,textNode);
+    highLightedNode = container;
+}
+function continueSpeaking(language, speed, hihgLightedColor, textAreaInput) {
+    if(textAreaInput.trim().length > 0 && currentUtterance){
+        currentUtterance.lang = "English" ? "en-US" : "da-DK";
+        currentUtterance.rate = speed;
+        currentUtterance.text = textAreaInput;
+        speechSynthesis.resume();
+    }
+    else{
+        speakNextNode(language, speed, hihgLightedColor);
+    }
+}
+function stopSpeaking(){
+    speechSynthesis.cancel();
+    // This is important to remove the highlighted text
+    var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
+    if (originalTexts) {
+        document.body.innerHTML = originalTexts.bodyContent;
+        localStorage.removeItem('originalTexts');
+    }
+    currentUtterance = null;
+
+}
+function pauseSpeaking(textAreaInput){
+    if(textAreaInput.trim().length > 0){
+        speechSynthesis.pause();
+    }
+    // If it is not the textarea should read, then cancel the speech to be able to continue speaking, otherwise it will not continue speaking and highlight will not work.
+    else{
+        speechSynthesis.cancel();
+    }
+}
+speechSynthesis.onresume = () => {
+    if (currentUtterance) {
+        continueSpeaking(currentUtterance.lang, currentUtterance.rate);
+    }
+};
+
+/* module.exports = {
     start,
     stop,
     dyslexiaType,
-    collectTextNodes,
     mirrorWord,
     switchLetters
 
-};
+}; */
