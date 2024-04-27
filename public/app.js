@@ -3,13 +3,15 @@ const messageListener = function(request, sender, sendResponse) {
     return request.type;
 };
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(request);
     if(request.type === "speak"){
         speakText(request.settings.language, request.settings.speed);
         
     }
-    else if(request.type === "dont_speak" || request.type === "pause"){
+    else if(request.type === "dont_speak"){
         stopSpeaking();
+    }
+    else if(request.type === "pause"){
+        pauseSpeaking();
     }
     else if(request.type === "play"){
         continueSpeaking(request.settings.language, request.settings.speed);
@@ -431,13 +433,12 @@ function switchLetters(word){
     return letters.join(''); 
 }
 let currentUtterance;
-let currentHighLighted;  
 let textNodes = [];
 let currentIndex = 0; 
-let currentTextContent;
+let highLightedNode;
 function speakText(language, speed) {
-    textNodes = collectTextNodes();
     currentIndex = 0; 
+    textNodes = collectTextNodes();
     speakNextNode(language, speed);
 }
 function speakNextNode(language, speed) {
@@ -452,13 +453,17 @@ function speakNextNode(language, speed) {
             utterance.onerror = function(event) {
                 console.error("Speech synthesis error:", event.error);
             };
-            utterance.onend = function() {
-                currentIndex++;
-                speakNextNode(language, speed);
+            utterance.onstart = function() {
+                highlightWord(textNode);
             };
             speechSynthesis.speak(utterance);
             currentUtterance = utterance;
-            currentTextContent = textContent;
+            utterance.onend = function() {
+                // remove the highlighed after done with speaking
+                highLightedNode.parentNode.replaceChild(textNode, highLightedNode);
+                currentIndex++;
+                speakNextNode(language, speed);
+            };
             
         } else {
             currentIndex++;
@@ -466,13 +471,36 @@ function speakNextNode(language, speed) {
         }
     }
 }
+function highlightWord(textNode) {
+    const words = textNode.nodeValue.trim().split(/\s+/);
+    for(let i = 0; i<words.length; i++){
+        words[i]  = `<span style="background-color: yellow">${words[i]}</span>`
+    }
+    const container = document.createElement('span');
+    container.innerHTML = words.join(' ');
+    textNode.parentNode.replaceChild(container,textNode);
+    highLightedNode = container;
+}
 function continueSpeaking(language, speed) {
-    speakNextNode(language, speed);
+    if(currentUtterance){
+        speakNextNode(language, speed);
+    }
 }
 function stopSpeaking(){
     speechSynthesis.cancel();
+    // This is important to remove the highlighted text
+    var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
+    if (originalTexts) {
+        document.body.innerHTML = originalTexts.bodyContent;
+        localStorage.removeItem('originalTexts');
+    }
+    currentUtterance = null;
+
 }
-speechSynthesis.onresume = function() {
+function pauseSpeaking(){
+    speechSynthesis.cancel();
+}
+speechSynthesis.onresume = () => {
     if (currentUtterance) {
         continueSpeaking(currentUtterance.lang, currentUtterance.rate);
     }
