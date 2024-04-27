@@ -4,17 +4,17 @@ const messageListener = function(request, sender, sendResponse) {
 };
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(request.type === "speak"){
-        speakText(request.settings.language, request.settings.speed);
+        speakText(request.settings.language, request.settings.speed, request.settings.hihgLightedColor,request.settings.textAreaInput);
         
     }
     else if(request.type === "dont_speak"){
         stopSpeaking();
     }
     else if(request.type === "pause"){
-        pauseSpeaking();
+        pauseSpeaking(request.settings.textAreaInput);
     }
     else if(request.type === "play"){
-        continueSpeaking(request.settings.language, request.settings.speed);
+        continueSpeaking(request.settings.language, request.settings.speed, request.settings.hihgLightedColor,request.settings.textAreaInput);
     }
     if (request.type === "stop") {
         stop();
@@ -436,12 +436,26 @@ let currentUtterance;
 let textNodes = [];
 let currentIndex = 0; 
 let highLightedNode;
-function speakText(language, speed) {
-    currentIndex = 0; 
-    textNodes = collectTextNodes();
-    speakNextNode(language, speed);
+function speakText(language, speed, hihgLightedColor, textAreaInput) {
+    if(textAreaInput.trim().length > 0){
+        speakTextAreaInput(language, speed, textAreaInput);
+    }
+    else{
+        currentIndex = 0; 
+        textNodes = collectTextNodes();
+        speakNextNode(language, speed, hihgLightedColor,textAreaInput);
+    }
+    
 }
-function speakNextNode(language, speed) {
+function speakTextAreaInput(language, speed,textAreaInput){
+    const utterance = new SpeechSynthesisUtterance();
+    utterance.lang = language === "English" ? "en-US" : "da-DK";
+    utterance.rate = speed;
+    utterance.text = textAreaInput;
+    currentUtterance = utterance;
+    speechSynthesis.speak(utterance);
+}
+function speakNextNode(language, speed, hihgLightedColor) {
     if (currentIndex < textNodes.length) {
         const textNode = textNodes[currentIndex];
         const textContent = textNode.nodeValue.trim();
@@ -454,7 +468,7 @@ function speakNextNode(language, speed) {
                 console.error("Speech synthesis error:", event.error);
             };
             utterance.onstart = function() {
-                highlightWord(textNode);
+                highlightWord(textNode,hihgLightedColor);
             };
             speechSynthesis.speak(utterance);
             currentUtterance = utterance;
@@ -462,28 +476,34 @@ function speakNextNode(language, speed) {
                 // remove the highlighed after done with speaking
                 highLightedNode.parentNode.replaceChild(textNode, highLightedNode);
                 currentIndex++;
-                speakNextNode(language, speed);
+                speakNextNode(language, speed, hihgLightedColor);
             };
             
         } else {
             currentIndex++;
-            speakNextNode(language, speed);
+            speakNextNode(language, speed,hihgLightedColor);
         }
     }
 }
-function highlightWord(textNode) {
+function highlightWord(textNode,hihgLightedColor) {
     const words = textNode.nodeValue.trim().split(/\s+/);
     for(let i = 0; i<words.length; i++){
-        words[i]  = `<span style="background-color: yellow">${words[i]}</span>`
+        words[i]  = `<span style="background-color: ${hihgLightedColor}">${words[i]}</span>`
     }
     const container = document.createElement('span');
     container.innerHTML = words.join(' ');
     textNode.parentNode.replaceChild(container,textNode);
     highLightedNode = container;
 }
-function continueSpeaking(language, speed) {
-    if(currentUtterance){
-        speakNextNode(language, speed);
+function continueSpeaking(language, speed, hihgLightedColor, textAreaInput) {
+    if(textAreaInput.trim().length > 0 && currentUtterance){
+        currentUtterance.lang = "English" ? "en-US" : "da-DK";
+        currentUtterance.rate = speed;
+        currentUtterance.text = textAreaInput;
+        speechSynthesis.resume();
+    }
+    else{
+        speakNextNode(language, speed, hihgLightedColor);
     }
 }
 function stopSpeaking(){
@@ -497,8 +517,14 @@ function stopSpeaking(){
     currentUtterance = null;
 
 }
-function pauseSpeaking(){
-    speechSynthesis.cancel();
+function pauseSpeaking(textAreaInput){
+    if(textAreaInput.trim().length > 0){
+        speechSynthesis.pause();
+    }
+    // If it is not the textarea should read, then cancel the speech to be able to continue speaking, otherwise it will not continue speaking and highlight will not work.
+    else{
+        speechSynthesis.cancel();
+    }
 }
 speechSynthesis.onresume = () => {
     if (currentUtterance) {

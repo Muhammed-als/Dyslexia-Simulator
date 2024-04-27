@@ -185,14 +185,34 @@ body{
     width: 100%;
 }
 .speakButtons .speakSettings .language,
-.speakButtons .speakSettings .speed{
+.speakButtons .speakSettings .speed,
+.speakButtons .speakSettings .highligt,
+.speakButtons .speakSettings .textAreaInput{
     margin-bottom: 10px;
 }
 .speakButtons .speakSettings .language p,
-.speakButtons .speakSettings .speed p{
+.speakButtons .speakSettings .speed p,
+.speakButtons .speakSettings .highligt p,
+.speakButtons .speakSettings .textAreaInput p{
     font-size: 1.2rem;
 }
+.speakButtons .speakSettings .textAreaInput textarea{
+    width: 100%;
+    min-height: 100px;
+    max-height: 300px;
+    padding: 1%;
+    font-size: large;
+    border: 2px solid white;
+    border-radius: 12px;
+    resize: vertical;
+}
 
+.speakButtons .speakSettings .highligt input{
+    padding: 2%;
+    border-radius: 15px;
+    width: 100%;
+    border: 2px solid white;
+}
 .speakButtons .speakSettings .language select{
     width: 50%;
     border-radius: 15px;

@@ -6,6 +6,8 @@ function Speak({sendToContentScript}){
     const [pauseButton, setPauseButton ] = useState("pause");
     const [selectedLanguage, setSelectedLanguage] = useState("English");
     const [selectedSpeed, setSelectedSpeed] = useState(1);
+    const [selectedHighLightedColor, setSelectedHihgLightedColor] = useState("yellow");
+    const [textAreaInput, setTextAreaInput] = useState("");
     const handleSpeakButton = () => {
         sendToContentScript(speakButton,null,sendSettingsToContentScript());
         setSpeakButton((prevState) => (prevState === "speak" ? "dont_speak" : "speak"))
@@ -21,10 +23,18 @@ function Speak({sendToContentScript}){
     const handleSpeedChange = (event) => {
         setSelectedSpeed(parseFloat(event.target.value));
     };
+    const handleChangingHighlightedColor = (event) => {
+        setSelectedHihgLightedColor(event.target.value.toLowerCase());
+    }
+    const handleTextAreaInput = (event) => {
+        setTextAreaInput(event.target.value);
+    }
     const sendSettingsToContentScript = () => {
         const settings = {
             language: selectedLanguage,
-            speed: selectedSpeed
+            speed: selectedSpeed,
+            hihgLightedColor: selectedHighLightedColor,
+            textAreaInput: textAreaInput
         };
         return settings;
     };
@@ -42,6 +52,14 @@ function Speak({sendToContentScript}){
                     <p>Select reading speed</p>
                     <input type="range" min="0.1" max="2" step="0.1" value={selectedSpeed} onChange={handleSpeedChange} />
                     <p>{selectedSpeed}</p>
+                </div>
+                <div className="highligt">
+                    <p>Select highlighting color</p>
+                    <input type="text" name="highLightedColor" placeholder="Type the desired color" id="highLightedColor" value={selectedHighLightedColor} onChange={handleChangingHighlightedColor}/>
+                </div>
+                <div className="textAreaInput">
+                    <p>Type the desired text to be read. Keep it empty to read to the entire site</p>
+                    <textarea name="text" id="message" cols="100%" rows="10%" placeholder="Type the desired text" onChange={handleTextAreaInput}>{textAreaInput}</textarea>
                 </div>
             </div>
             <button type="button" className={speakButton} onClick={handleSpeakButton}>
@@ -65,7 +83,6 @@ function Speak({sendToContentScript}){
             </button>
             <br />
             <br />
-            <h3 style={{ width: "100%", display: "flex", justifyContent : "center"}}>*Try to stop and play speaking again,if it is not working from first time</h3>
         </div>
     );
 }
