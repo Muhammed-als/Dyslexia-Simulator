@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import backImage from "../../../public/images/back_btn.png"
 import Speak from "./Speak.jsx";
-
+import TextSettings from "./TextSettings.jsx";
 function Aids({ onBack, sendToContentScript }){
     const [selectedAid, setSelectedAid] = useState("speak");
     const handleSelectedAid = (aid) => {
@@ -19,11 +19,10 @@ function Aids({ onBack, sendToContentScript }){
             </div>
             <div className="separateLine"></div>
             <>
-            {selectedAid ? (
+            {selectedAid === "speak" ? (
                 <Speak sendToContentScript={sendToContentScript}/>
             ) : (
-                <button>Text</button>
-                // {/* <TextSettings /> */}
+                <TextSettings sendToContentScript={sendToContentScript} />
             )}
             </>
                

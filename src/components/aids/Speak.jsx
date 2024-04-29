@@ -59,7 +59,15 @@ function Speak({sendToContentScript}){
                 </div>
                 <div className="textAreaInput">
                     <p>Type the desired text to be read. Keep it empty to read to the entire site</p>
-                    <textarea name="text" id="message" cols="100%" rows="10%" placeholder="Type the desired text" onChange={handleTextAreaInput}>{textAreaInput}</textarea>
+                    <textarea 
+                        name="text" 
+                        id="message" 
+                        cols="100%" 
+                        rows="10%" 
+                        placeholder="Type the desired text" 
+                        value={textAreaInput}
+                        onChange={handleTextAreaInput}
+                    />
                 </div>
             </div>
             <button type="button" className={speakButton} onClick={handleSpeakButton}>
