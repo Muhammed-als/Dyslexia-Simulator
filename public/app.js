@@ -16,6 +16,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     else if(request.type === "play"){
         continueSpeaking(request.settings.language, request.settings.speed, request.settings.hihgLightedColor,request.settings.textAreaInput);
     }
+    if(request.type === "applyChanges"){
+        applyChangesInText(request.settings.color,request.settings.size, request.settings.fontType, request.settings.lineSpace);
+    }
+    else if(request.type === "cancelChanges"){
+        removeChangesInText();
+    }
     if (request.type === "stop") {
         stop();
     }
@@ -531,7 +537,26 @@ speechSynthesis.onresume = () => {
         continueSpeaking(currentUtterance.lang, currentUtterance.rate);
     }
 };
+function applyChangesInText(color, size, fontType, lineSpace){
+    textNodes = collectTextNodes();
+    textNodes.map(textNode => {
+        const words = textNode.nodeValue.trim().split(/\s+/);
+        for(let i = 0; i<words.length; i++){
+            words[i]  = `<span style="color: ${color};font-size:${size}px;font-family:${fontType}; line-height:${lineSpace};">${words[i]}</span>`
+        }
+        const container = document.createElement('span');
+        container.innerHTML = words.join(' ');
+        textNode.parentNode.replaceChild(container,textNode);
+    })   
+}
 
+function removeChangesInText(){
+    var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
+    if (originalTexts) {
+        document.body.innerHTML = originalTexts.bodyContent;
+        localStorage.removeItem('originalTexts');
+    }
+}
 /* module.exports = {
     start,
     stop,

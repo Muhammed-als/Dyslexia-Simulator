@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import Phonological from "./phonological.jsx";
-import Surface from "./surface.jsx";
-import RapidNaming from "./rapidNaming.jsx";
-import Visual from "./visual.jsx";
-import DoubleDeficit from "./doubleDeficit.jsx";
+import Phonological from "./Phonological.jsx";
+import Surface from "./Surface.jsx";
+import RapidNaming from "./RapidNaming.jsx";
+import Visual from "./Visual.jsx";
+import DoubleDeficit from "./DoubleDeficit.jsx";
 
 function Simulation({ onAidsSelected,sendToContentScript  }) {
     const [selectedType, setSelectedType] = useState(null);

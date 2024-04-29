@@ -62,15 +62,29 @@ body{
     width: 100%;
     margin-bottom: 5px;
 }
+.textSettingsContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
+.textSettingsContainer .applyButton{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
 .simulation-container .buttons .start,
 .simulation-container .buttons .stop,
 .simulation-container .buttons .aids,
 .speakButtons .speak,
 .speakButtons .dont_speak,
 .speakButtons .pause,
-.speakButtons .play
+.speakButtons .play,
+.textSettingsContainer .applyButton .applyChanges,
+.textSettingsContainer .applyButton .cancelChanges{
 
-{
     text-align: center;
     color: white;
     border: 2px solid white;
@@ -139,12 +153,14 @@ body{
 }
 .simulation-container .buttons .start,
 .speakButtons .speak,
-.speakButtons .play{
+.speakButtons .play,
+.textSettingsContainer .applyButton .applyChanges{
     background-color: rgb(2, 183, 99);
 }
 .simulation-container .buttons .stop,
 .speakButtons .dont_speak,
-.speakButtons .pause{
+.speakButtons .pause,
+.textSettingsContainer .applyButton .cancelChanges{
     background-color: rgb(215, 86, 86);
 }
 .simulation-container .buttons .aids{
@@ -177,7 +193,8 @@ body{
     transition: all 0.3s ease-in-out;
 } 
 
-.speakButtons .speakSettings{
+.speakButtons .speakSettings,
+.speakButtons .textSettings{
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -187,13 +204,22 @@ body{
 .speakButtons .speakSettings .language,
 .speakButtons .speakSettings .speed,
 .speakButtons .speakSettings .highligt,
-.speakButtons .speakSettings .textAreaInput{
+.speakButtons .speakSettings .textAreaInput,
+.textSettings .selectedTextColor,
+.textSettings .selectedFontType,
+.textSettings .selectedTextFont,
+.textSettings .spaceBetweenLines,
+.textSettings .previewText{
     margin-bottom: 10px;
 }
 .speakButtons .speakSettings .language p,
 .speakButtons .speakSettings .speed p,
 .speakButtons .speakSettings .highligt p,
-.speakButtons .speakSettings .textAreaInput p{
+.speakButtons .speakSettings .textAreaInput p,
+.textSettings .selectedTextColor p,
+.textSettings .selectedTextFont p,
+.textSettings .selectedFontType p,
+.textSettings .spaceBetweenLines p{
     font-size: 1.2rem;
 }
 .speakButtons .speakSettings .textAreaInput textarea{
@@ -207,13 +233,18 @@ body{
     resize: vertical;
 }
 
-.speakButtons .speakSettings .highligt input{
+.speakButtons .speakSettings .highligt input,
+.textSettings input{
     padding: 2%;
     border-radius: 15px;
     width: 100%;
     border: 2px solid white;
 }
-.speakButtons .speakSettings .language select{
+.textSettings input{
+    width: 50%;
+}
+.speakButtons .speakSettings .language select,
+.textSettings select{
     width: 50%;
     border-radius: 15px;
     border: 2px solid white;
@@ -222,10 +253,14 @@ body{
     width: 100%;
     padding: 2%;
 }
-
-
-
-
+.textSettings .previewText{
+    width: 100%;
+    padding: 2%;
+    background-color: gray;
+    border: 2px solid black;
+    border-radius: 15px;
+    color: white;
+}
 .simulation-container .buttons .start:hover,
 .simulation-container .buttons .stop:hover,
 .simulation-container .buttons .aids:hover,
@@ -233,7 +268,9 @@ body{
 .speakButtons .dont_speak:hover,
 .speakButtons .pause:hover,
 .speakButtons .play:hover,
-.avaialbleAids button:hover{
+.avaialbleAids button:hover,
+.textSettingsContainer .applyButton .applyChanges:hover,
+.textSettingsContainer .applyButton .cancelChanges:hover{
     opacity: 0.8;
     transition: all 0.3s ease-in-out;
 }
