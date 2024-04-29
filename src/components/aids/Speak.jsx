@@ -1,6 +1,4 @@
 import React, {useState} from "react";
-import speakImage from "../../../public/images/speaktext.png";
-
 function Speak({sendToContentScript}){
     const [speakButton, setSpeakButton ] = useState("speak");
     const [pauseButton, setPauseButton ] = useState("pause");
@@ -73,7 +71,6 @@ function Speak({sendToContentScript}){
             <button type="button" className={speakButton} onClick={handleSpeakButton}>
                 {speakButton === "speak" ? (
                     <div className="speakButton">
-                        <img src={speakImage} alt="speak_img" />
                         <p>Speak</p>
                     </div>
                 ) : (
