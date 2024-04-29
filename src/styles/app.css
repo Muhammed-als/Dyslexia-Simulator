@@ -127,6 +127,13 @@ body{
     margin: auto;
     margin-bottom: 20px;
 }
+.speakButtons  .speak .speakButtons{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
 .speakButtons  .speak .speakButton{
     display: flex;
     flex-direction: row;

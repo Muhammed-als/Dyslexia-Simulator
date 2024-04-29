@@ -72,10 +72,14 @@ function Simulation({ onAidsSelected,sendToContentScript  }) {
                 {getDescription()}
             </div>
             <div className="buttons">
-            <button type="button" className={changeButton} onClick={handleChangingButton}>
-                    {changeButton === "start" ? "Start simulation" : "Stop simulation"}
-            </button>
-            <button type="button" className="aids" onClick={onAidsSelected}>Aids</button>
+                <button style={selectedType ? {} : { cursor: "not-allowed" }} type="button" className={changeButton}     onClick={selectedType ? handleChangingButton : null}>
+                        {changeButton === "start" ? "Start simulation" : "Stop simulation"}
+                </button>
+                {changeButton === "start" ? (
+                    <button type="button" className="aids" onClick={onAidsSelected}>Aids</button>
+                    ) : (
+                        null
+                    )}
             </div>
         </div>
     );
