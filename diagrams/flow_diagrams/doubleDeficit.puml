@@ -1,10 +1,6 @@
-@startuml
+@startuml Double Deficit
 start 
-if(Presneted dyslexia types > 1) then (yes)
-    :The simulator choose two random types of dyslexia;
-else (no)
-    :Choose the presented type;
-endif 
-
+: The simulator combines the phonological and Rapid Naming dyslexia challenges together;
+:Apply changes to text;
 stop
 @enduml

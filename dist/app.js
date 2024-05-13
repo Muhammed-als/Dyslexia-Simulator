@@ -112,11 +112,7 @@ function activatePhonologicalMood(difficulty){
     var textNodes = [];
     textNodes = collectTextNodes();
     const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
-    for(let i = 0; i<numModifications; i++){
-        combineWords();
-        createUnfamiliarWords();
-    }
-    function combineWords() {
+    const combineWords = () => {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
@@ -138,9 +134,7 @@ function activatePhonologicalMood(difficulty){
             randomTextNode.nodeValue = newTextContent;
         }
     }
-
-    
-    function createUnfamiliarWords(){
+    const createUnfamiliarWords = () => {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
@@ -166,16 +160,20 @@ function activatePhonologicalMood(difficulty){
         }
         
     }
+    const addPhonologicalListeners = () => {
+        console.log(true)
+        for (let i = 0; i < numModifications; i++) {
+            combineWords();
+            createUnfamiliarWords();
+        }
+    };
+    return addPhonologicalListeners();
 }
 function activateSurfaceMood(difficulty){
     var textNodes = [];
     textNodes = collectTextNodes();
     const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
-    for(let i = 0; i<numModifications; i++){
-        changeFontSettings();
-        applyBlurEffect();
-    }
-    function changeFontSettings(){
+    const  changeFontStyle = () => {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
@@ -207,7 +205,7 @@ function activateSurfaceMood(difficulty){
             }
         }
     }
-    function applyBlurEffect() {
+    const applyBlurEffect = () => {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
@@ -238,6 +236,13 @@ function activateSurfaceMood(difficulty){
             }
         }
     }
+    const addSurfaceListeners = () => {
+        for(let i = 0; i<numModifications; i++){
+            changeFontStyle();
+            applyBlurEffect();
+        }
+    }
+    return addSurfaceListeners();
     
 }
 
@@ -245,11 +250,7 @@ function actiavateRapidNamingMood(difficulty){
     var textNodes = [];
     textNodes = collectTextNodes();
     const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
-    for(let i = 0; i<numModifications; i++){
-        changeAppearanceOfText();
-        applyWarpEffect();
-    }
-    function changeAppearanceOfText(){
+    const changeFontColor = () => {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
@@ -293,7 +294,7 @@ function actiavateRapidNamingMood(difficulty){
             }
         }
     }
-    function applyWarpEffect(){
+    const applyWarpEffect = () => {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
@@ -325,6 +326,13 @@ function actiavateRapidNamingMood(difficulty){
         }
 
     }
+    const addRapidNamingListeners = () => {
+        for(let i = 0; i<numModifications; i++){
+            changeFontColor();
+            applyWarpEffect();
+        }
+    }
+    return addRapidNamingListeners();
 }
 function activateVisualMood(difficulty){
     const style = document.createElement('style');
@@ -338,12 +346,7 @@ function activateVisualMood(difficulty){
     var textNodes = [];
     textNodes = collectTextNodes();
     const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
-    for(let i = 0; i<numModifications; i++){
-        applyWordMovement();
-        displayTheMirrorOfLetter();
-        rearrangeLetters();
-    }
-    function applyWordMovement(){
+    const applyWordMovement = () => {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
@@ -367,7 +370,7 @@ function activateVisualMood(difficulty){
             randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
         }
     }
-    function displayTheMirrorOfLetter(){
+    const displayTheMirrorOfLetter = () => {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
@@ -390,7 +393,7 @@ function activateVisualMood(difficulty){
             }
         }
     }
-    function rearrangeLetters(){
+    const rearrangeLetters = () => {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
@@ -413,10 +416,21 @@ function activateVisualMood(difficulty){
             }
         }
     }
+    const addVisualListeners = () => {
+        for(let i = 0; i<numModifications; i++){
+            applyWordMovement();
+            displayTheMirrorOfLetter();
+            rearrangeLetters();
+        }
+    }
+    return addVisualListeners();
 }
 function activateDoubleDeficitMood(difficulty){
-    activatePhonologicalMood(difficulty);
-    actiavateRapidNamingMood(difficulty);
+    const addDoubleDeficitListeners = () => {
+        activatePhonologicalMood(difficulty);
+        actiavateRapidNamingMood(difficulty);
+    }
+    return addDoubleDeficitListeners();
 }
 function mirrorWord(word){
     const mirrorLetters = {

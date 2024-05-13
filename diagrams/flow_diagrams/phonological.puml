@@ -2,7 +2,9 @@
 start
 
 :The simulator choose words from the presented text;
-:Break down words into individual sounds;
-:Apply changes to text;
+:Combine words together;
+:The simulator choose another words from the presented text;
+:Create unfamilier words;
+:Apply changes to the text;
 stop
 @enduml

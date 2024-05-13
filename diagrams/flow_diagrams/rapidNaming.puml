@@ -2,7 +2,9 @@
 start
 
 :The simulator choose words from the presented text;
-:Warp some letters in a word;
+:Warp letters within a word;
+:The simulator choose another words from the presented text;
+:Change font color;
 :Apply changes to text;
 
 stop
