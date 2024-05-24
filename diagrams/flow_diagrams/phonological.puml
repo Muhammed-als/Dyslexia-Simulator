@@ -1,10 +1,23 @@
 @startuml Phonological
 start
 
-:The simulator choose words from the presented text;
-:Combine words together;
-:The simulator choose another words from the presented text;
-:Create unfamilier words;
-:Apply changes to the text;
+: The extension chooses sentences from the presented text;
+: Combine words together within the selected sentence;
+: The extension chooses other sentences from the presented text;
+while (Is the selected sentence the same?) is (yes)
+    : Choose another sentence from the presented text;
+endwhile (no)
+: Create unfamiliar words within the selected sentence;
+: The extension chooses other sentences from the presented text;
+while (Is the selected sentence the same?) is (yes)
+    : Choose another sentence from the presented text;
+endwhile (no)
+: Transform the presented letters in a word into their mirror;
+: The extension chooses other sentences from the presented text;
+while (Is the selected sentence the same?) is (yes)
+    : Choose another sentence from the presented text;
+endwhile (no)
+: Rearrange letters within a word;
+: Apply changes to the text;
 stop
 @enduml

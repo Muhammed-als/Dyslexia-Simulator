@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import Aids from "./components/aids/Aids.jsx";
+import Aids from "./components/aids/Aids.jsx";  
 import "./styles/app.css";
 import Simulation from "./components/simulation.jsx";
 

@@ -1,0 +1,30 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE PhonologicalMoodModule {
+    + activatePhonologicalMood(difficulty)
+}
+
+class Private {
+    - combineWords()
+    - createUnfamiliarWords()
+    - displayTheMirrorOfLetter()
+    - rearrangeLetters()
+    - addPhonologicalListeners(numModifications)
+}
+note left of Private::combineWords
+Private function to combine words.
+end note
+note left of Private::createUnfamiliarWords
+Private function to create unfamiliar words.
+end note
+note left of Private::displayTheMirrorOfLetter
+Private function to display the mirror of a letter.
+end note
+note left of Private::addPhonologicalListeners
+Private function to apply phonological modifications by calling the  
+combineWords(),createUnfamiliarWords() and displayTheMirrorOfLetter() functions.
+end note
+
+PhonologicalMoodModule ..> Private : uses
+@enduml

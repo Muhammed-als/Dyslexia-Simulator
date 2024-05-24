@@ -4,19 +4,7 @@ global.NodeFilter = {
     FILTER_ACCEPT: 1,
   };
   const { JSDOM } = require('jsdom');
-  const { start, stop, dyslexiaType } = require('./app.js');
-  const chromeApi = require('./chromeApi.js');
-  
-  jest.mock('./chromeApi.js', () => ({
-    runtime: {
-      onMessage: {
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-      },
-      sendMessage: jest.fn(),
-    },
-  }));
-  
+  const {dyslexiaType } = require('./app.js');  
   describe('Extension testing', () => {
     let originalDocument;
   
@@ -39,27 +27,25 @@ global.NodeFilter = {
     test('Test Phonological dyslexia', () => {
       const originalText = '<div id="test">Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.</div>';
       document.body.innerHTML = originalText;
-      dyslexiaType("Phonological");
+      dyslexiaType("Phonological",1);
       const textNode = document.querySelector('#test');
       expect(textNode.textContent).not.toBe(originalText);
     });
     test('Test Surface dyslexia', () => {
         const originalText = 'Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.';
         document.body.innerHTML = originalText;
-        dyslexiaType("Surface");
+        dyslexiaType("Surface",2);
         const modifiedTextNodes = document.querySelectorAll('span');
         
         // The modified words will have a span tag with font-family css key-value, therefore it is expected for the modified text to have fontFamily
         modifiedTextNodes.forEach(node => {
             expect(node.style.fontFamily).toBeTruthy();
-            expect(node.style.opacity).toBeTruthy();
-            expect(node.style.filter).toContain('blur');
         });
     });
     test('Test Rapid naming dyslexia', () => {
       const originalText = 'Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.';
       document.body.innerHTML = originalText;
-      dyslexiaType("Rapid naming");
+      dyslexiaType("Rapid naming",3);
       const modifiedTextNodes = document.querySelectorAll('span');
       modifiedTextNodes.forEach(node => {
           expect(node.style.color).toBeTruthy();
@@ -69,10 +55,11 @@ global.NodeFilter = {
     test('Test Visual dyslexia',() => {
       const originalText = 'Dyslexia is a learning disability that hinders an individual’s ability to read by affecting spelling, writing, and comprehension skills.';
       document.body.innerHTML = originalText;
-      dyslexiaType("Visual");
+      dyslexiaType("Visual",4);
       const modifiedTextNodes = document.querySelectorAll('span');
       modifiedTextNodes.forEach(node => {
           expect(node.style.animation).toBeTruthy();
+          expect(node.style.filter).toContain('blur');
       });
 
     })

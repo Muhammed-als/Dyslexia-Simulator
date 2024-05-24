@@ -1,8 +1,10 @@
+const chromeApi = require("./chromeApi");
+
 let isListening = false;
 const messageListener = function(request, sender, sendResponse) {
     return request.type;
 };
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(request.type === "speak"){
         speakText(request.settings.language, request.settings.speed, request.settings.hihgLightedColor,request.settings.textAreaInput);
         
@@ -31,49 +33,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     }
 });
 
-function dyslexiaType(type,diffuculty) {
-    switch(type) {
-        case "Phonological":
-            activatePhonologicalMood(diffuculty.Phonological);
-            break;
-        case "Surface":
-            activateSurfaceMood(diffuculty.Surface);
-            break;
-        case "Rapid naming":
-            actiavateRapidNamingMood(diffuculty.Rapid_naming);
-            break;
-        case "Visual":
-            activateVisualMood(diffuculty.Visual);
-            break;
-        case "Double Deficit":
-            activateDoubleDeficitMood(diffuculty.Double_Deficit);
-            break;
-        default:
-            break;
-    }
-}
-function start() {
-    if (!isListening) {
-        chrome.runtime.onMessage.addListener(messageListener);
-        isListening = true;
-    }
-}
-
-function stop() {
-    if (isListening) {
-        chrome.runtime.onMessage.removeListener(messageListener);
-        isListening = false;
-        var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
-        if (originalTexts) {
-            document.body.innerHTML = originalTexts.bodyContent;
-            localStorage.removeItem('originalTexts');
-            console.log("Page content restored from local storage.");
-        } else {
-            console.log("No stored content found.");
-        }
-    }
-}
-
 function collectTextNodes() {
     var allText = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     var textNodes = [];
@@ -84,12 +43,12 @@ function collectTextNodes() {
             textNodes.push(currentNode);
         }
     }
-    var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
+   /*  var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
     if (!originalTexts) {
         originalTexts = {};
     }
     originalTexts.bodyContent = document.body.innerHTML;
-    localStorage.setItem('originalTexts', JSON.stringify(originalTexts));
+    localStorage.setItem('originalTexts', JSON.stringify(originalTexts)); */
     return textNodes;
 }
 
@@ -104,16 +63,13 @@ function isTextScriptOrStyle(node) {
     return false;
 }
 
-
-
-
-
-function activatePhonologicalMood(difficulty){
+const PhonologicalMoodModule = (function() {
+    // Private variables and functions
     var textNodes = [];
-    textNodes = collectTextNodes();
-    const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
-    const combineWords = () => {
+    var oldIndex = 0;
+    function combineWords() {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
+        oldIndex = randomIndex;
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
         let words = [];
@@ -122,76 +78,142 @@ function activatePhonologicalMood(difficulty){
         }
         const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
         let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
-        if(words.length > 0){
+        if (words.length > 0) {
             for (let i = start; i < end; i++) {
-                if(words[i + 1]){
+                if (words[i + 1]) {
                     words[i] = words[i] + '' + words[i + 1];
                     words.splice(i + 1, 1); // Remove the next word at index i + 1
                 }
-                
             }
             const newTextContent = words.join(' ');
             randomTextNode.nodeValue = newTextContent;
         }
     }
-    const createUnfamiliarWords = () => {
-        const randomIndex = Math.floor(Math.random() * textNodes.length);
+
+    function createUnfamiliarWords() {
+        let randomIndex = Math.floor(Math.random() * textNodes.length);
+        while(oldIndex == randomIndex){
+            randomIndex = Math.floor(Math.random() * textNodes.length);
+        }
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
-        let words= [];
+        let words = [];
         if (/\s+/.test(textContent)) {
             words = textContent.split(/\s+/);
         }
         const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
         let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
-        if(words.length > 0){  
+        if (words.length > 0) {
             for (let i = start; i < end; i++) {
                 const word = words[i];
-                if (word.length > 6) { 
+                if (word.length > 6) {
                     const shortenedLength = Math.ceil(word.length * 3 / 4);
-                    
-                    // Create the shortcut by taking the first 3/4 of the word
-                    const shortenedWord = word.substring(0, shortenedLength);    
+                    const shortenedWord = word.substring(0, shortenedLength);
                     words[i] = shortenedWord;
                 }
-            }    
-            const newTextContent = words.join(' ');    
+            }
+            const newTextContent = words.join(' ');
             randomTextNode.nodeValue = newTextContent;
         }
-        
     }
-    const addPhonologicalListeners = () => {
-        console.log(true)
-        for (let i = 0; i < numModifications; i++) {
-            combineWords();
-            createUnfamiliarWords();
+    function displayTheMirrorOfLetter() {
+        let randomIndex = Math.floor(Math.random() * textNodes.length);
+        while(oldIndex == randomIndex){
+            randomIndex = Math.floor(Math.random() * textNodes.length);
         }
-    };
-    return addPhonologicalListeners();
-}
-function activateSurfaceMood(difficulty){
-    var textNodes = [];
-    textNodes = collectTextNodes();
-    const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
-    const  changeFontStyle = () => {
-        const randomIndex = Math.floor(Math.random() * textNodes.length);
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
         let words = [];
-        if (/\s+/.test(textNodes)) {
+        if (/\s+/.test(textContent)) {
             words = textContent.split(/\s+/);
         }
         const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
         let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
-        if(words.length > 0){
+        if (words.length > 0) {
+            words = words.map(word => mirrorWord(word));
+            const newTextContent = words.join(' ');
+            if (randomTextNode.parentElement) {
+                let newDiv = document.createElement('span');
+                newDiv.style.display = "inline-block";
+                newDiv.style.transformOrigin = "bottom center";
+                newDiv.style.transition = "transform 0.3s";
+                newDiv.textContent = newTextContent;
+                randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
+            }
+        }
+    }
+
+    function rearrangeLetters() {
+        let randomIndex = Math.floor(Math.random() * textNodes.length);
+        while(oldIndex == randomIndex){
+            randomIndex = Math.floor(Math.random() * textNodes.length);
+        }
+        const randomTextNode = textNodes[randomIndex];
+        const textContent = randomTextNode.nodeValue.trim();
+        let words = [];
+        if (/\s+/.test(textContent)) {
+            words = textContent.split(/\s+/);
+        }
+        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
+        if (words.length > 0) {
+            words = words.map(word => switchLetters(word));
+            const newTextContent = words.join(' ');
+            if (randomTextNode.parentElement) {
+                let newDiv = document.createElement('span');
+                newDiv.style.display = "inline-block";
+                newDiv.style.transformOrigin = "bottom center";
+                newDiv.style.transition = "transform 0.3s";
+                newDiv.textContent = newTextContent;
+                randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
+            }
+        }
+    }
+    function activatePhonologicalMood(difficulty) {
+        textNodes = collectTextNodes();
+        const numModifications = Math.ceil(textNodes.length * (difficulty / 10));
+
+        function addPhonologicalListeners() {
+            for (let i = 0; i < numModifications; i++) {
+                combineWords();
+                createUnfamiliarWords();
+                displayTheMirrorOfLetter();
+                rearrangeLetters();
+            }
+        }
+
+        addPhonologicalListeners();
+    }
+
+    return {
+        activatePhonologicalMood: activatePhonologicalMood
+    };
+})();
+
+const SurfaceMoodModule = (function() {
+    // Private variables and functions
+    var textNodes = [];
+    var oldIndex = 0;
+    function changeFontStyle() {
+        const randomIndex = Math.floor(Math.random() * textNodes.length);
+        oldIndex = randomIndex;
+        const randomTextNode = textNodes[randomIndex];
+        const textContent = randomTextNode.nodeValue.trim();
+        let words = [];
+        if (/\s+/.test(textContent)) {
+            words = textContent.split(/\s+/);
+        }
+        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
+        if (words.length > 0) {
             for (let i = start; i < end; i++) {
                 const word = words[i];
                 const fontSettings = [
                     { fontFamily: "Cursive" },
                     { fontFamily: "Impact" },
-                    {fontFamily: "Comic Sans MS"},
-                    {fontFamily: "Papyrus"},
-                    {fontFamily: "Curlz MT"}
+                    { fontFamily: "Comic Sans MS" },
+                    { fontFamily: "Papyrus" },
+                    { fontFamily: "Curlz MT" }
                 ];
                 const randomFontSetting = fontSettings[Math.floor(Math.random() * fontSettings.length)];
                 words[i] = `<span style="font-family: ${randomFontSetting.fontFamily}">${word}</span>`;
@@ -205,8 +227,11 @@ function activateSurfaceMood(difficulty){
             }
         }
     }
-    const applyBlurEffect = () => {
-        const randomIndex = Math.floor(Math.random() * textNodes.length);
+    function removeVowels(){
+        let randomIndex = Math.floor(Math.random() * textNodes.length);
+        while(oldIndex == randomIndex){
+            randomIndex = Math.floor(Math.random() * textNodes.length);
+        }
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
         let words = [];
@@ -219,13 +244,20 @@ function activateSurfaceMood(difficulty){
             for (let i = start; i < end; i++) {
                 const word = words[i];
                 let newWord = '';
+                const vowels = ['a','e','i','o','u'];
+                let vowelIsFound = false;
                 for (let j = 0; j < word.length; j++) {
                     const letter = word[j];
-                    let blurEffect = '';
-                    blurEffect = 'filter: blur(1px);';
-                    newWord += `<span style="${blurEffect}">${letter}</span>`;
+                    // add only the non vowels letters and remove vowels letters
+                    if (!vowels.includes(letter) || vowelIsFound) {
+                        newWord += letter;
+                    }
+                    else{
+                        vowelIsFound = true;
+                    }
                 }
                 words[i] = newWord;
+                console.log(words[i]);
             }
             const newTextContent = words.join(' ');
             if (randomTextNode.parentElement) {
@@ -235,32 +267,44 @@ function activateSurfaceMood(difficulty){
                 randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
             }
         }
+
     }
-    const addSurfaceListeners = () => {
-        for(let i = 0; i<numModifications; i++){
+
+    function addSurfaceListeners(numModifications) {
+        for (let i = 0; i < numModifications; i++) {
             changeFontStyle();
-            applyBlurEffect();
+            removeVowels();
         }
     }
-    return addSurfaceListeners();
-    
-}
 
-function actiavateRapidNamingMood(difficulty){
+    // Public function
+    function activateSurfaceMood(difficulty) {
+        textNodes = collectTextNodes();
+        const numModifications = Math.ceil(textNodes.length * (difficulty / 10));
+        addSurfaceListeners(numModifications);
+    }
+
+    return {
+        activateSurfaceMood: activateSurfaceMood
+    };
+})();
+
+const RapidNamingMoodModule = (function() {
+    // Private variables and functions
     var textNodes = [];
-    textNodes = collectTextNodes();
-    const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
-    const changeFontColor = () => {
+    var oldIndex = 0;
+    function changeFontColor() {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
+        oldIndex = randomIndex;
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
         let words = [];
-        if (/\s+/.test(textNodes)) {
+        if (/\s+/.test(textContent)) {
             words = textContent.split(/\s+/);
         }
         const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
         let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
-        if(words.length > 0){
+        if (words.length > 0) {
             for (let i = start; i < end; i++) {
                 const word = words[i];
                 const colors = [
@@ -275,12 +319,11 @@ function actiavateRapidNamingMood(difficulty){
                     "orange"
                 ];
                 const wordToLowerCase = words[i].toLowerCase();
-                if(colors.includes(wordToLowerCase)){
+                if (colors.includes(wordToLowerCase)) {
                     let newColors = colors.filter(color => color !== wordToLowerCase);
                     let randomColor = newColors[Math.floor(Math.random() * newColors.length)];
                     words[i] = `<span style="color: ${randomColor}">${word}</span>`;
-                }
-                else{
+                } else {
                     let randomColor = colors[Math.floor(Math.random() * colors.length)];
                     words[i] = `<span style="color: ${randomColor}">${word}</span>`;
                 }
@@ -294,17 +337,21 @@ function actiavateRapidNamingMood(difficulty){
             }
         }
     }
-    const applyWarpEffect = () => {
-        const randomIndex = Math.floor(Math.random() * textNodes.length);
+
+    function applyWarpEffect() {
+        let randomIndex = Math.floor(Math.random() * textNodes.length);
+        while(oldIndex == randomIndex){
+            randomIndex = Math.floor(Math.random() * textNodes.length);
+        }
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
         let words = [];
-        if (/\s+/.test(textNodes)) {
+        if (/\s+/.test(textContent)) {
             words = textContent.split(/\s+/);
         }
         const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
         let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
-        if(words.length > 0){
+        if (words.length > 0) {
             for (let i = start; i < end; i++) {
                 let startRotating = -10;
                 let newWord = '';
@@ -324,36 +371,38 @@ function actiavateRapidNamingMood(difficulty){
                 randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
             }
         }
-
     }
-    const addRapidNamingListeners = () => {
-        for(let i = 0; i<numModifications; i++){
+
+    function addRapidNamingListeners(numModifications) {
+        for (let i = 0; i < numModifications; i++) {
             changeFontColor();
             applyWarpEffect();
         }
     }
-    return addRapidNamingListeners();
-}
-function activateVisualMood(difficulty){
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes wordMovement {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(5px); }
-        }
-    `;
-    document.head.appendChild(style);
+
+    // Public function
+    function activateRapidNamingMood(difficulty) {
+        textNodes = collectTextNodes();
+        const numModifications = Math.ceil(textNodes.length * (difficulty / 10));
+        addRapidNamingListeners(numModifications);
+    }
+    return {
+        activateRapidNamingMood: activateRapidNamingMood
+    };
+})();
+const VisualMoodModule = (function() {
+    // Private variables and functions
     var textNodes = [];
-    textNodes = collectTextNodes();
-    const numModifications = Math.ceil(textNodes.length * (difficulty / 10)); 
-    const applyWordMovement = () => {
+    var oldIndex = 0;
+    function applyWordMovement() {
         const randomIndex = Math.floor(Math.random() * textNodes.length);
+        oldIndex = randomIndex;
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
         let words = textContent.split(/\s+/);
         const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
         let end = Math.floor(Math.random() * (words.length - start)) + start;
-    
+
         for (let i = 0; i < words.length; i++) {
             if (i >= start && i <= end) {
                 words[i] = `<span style="position:relative; display:inline-block; animation: wordMovement 2s infinite alternate;">${words[i]}</span>`;
@@ -361,7 +410,7 @@ function activateVisualMood(difficulty){
                 words[i] = `<span>${words[i]}</span>`; 
             }
         }
-    
+
         const newTextContent = words.join(' ');
         if (randomTextNode.parentElement) {
             let newDiv = document.createElement('span');
@@ -370,67 +419,137 @@ function activateVisualMood(difficulty){
             randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
         }
     }
-    const displayTheMirrorOfLetter = () => {
-        const randomIndex = Math.floor(Math.random() * textNodes.length);
+    function applyBlurEffect() {
+        let randomIndex = Math.floor(Math.random() * textNodes.length);
+        while(oldIndex == randomIndex){
+            randomIndex = Math.floor(Math.random() * textNodes.length);
+        }
         const randomTextNode = textNodes[randomIndex];
         const textContent = randomTextNode.nodeValue.trim();
         let words = [];
-        if (/\s+/.test(textNodes)) {
+        if (/\s+/.test(textContent)) {
             words = textContent.split(/\s+/);
         }
-        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
+        let start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
         let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
-        if(words.length > 0){
-            words = words.map(word => mirrorWord(word));
+        if (words.length > 0) {
+            for (let i = start; i < end; i++) {
+                words[i] = `<span style="position:relative; display:inline-block;transition: 
+                all 0.3s ease-in-out;animation: blurEffect 2s infinite alternate;">${words[i]}</span>`;
+            }
             const newTextContent = words.join(' ');
             if (randomTextNode.parentElement) {
                 let newDiv = document.createElement('span');
                 newDiv.style.display = "inline-block";
-                newDiv.style.transformOrigin = "bottom center";
-                newDiv.style.transition = "transform 0.3s";
-                newDiv.textContent = newTextContent;
+                newDiv.innerHTML = newTextContent;
                 randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
             }
         }
     }
-    const rearrangeLetters = () => {
-        const randomIndex = Math.floor(Math.random() * textNodes.length);
-        const randomTextNode = textNodes[randomIndex];
-        const textContent = randomTextNode.nodeValue.trim();
-        let words = [];
-        if (/\s+/.test(textNodes)) {
-            words = textContent.split(/\s+/);
-        }
-        const start = Math.max(0, Math.floor(Math.random() * (words.length - 1)));
-        let end = Math.floor(Math.random() * (words.length - start - 1)) + start + 1;
-        if(words.length > 0){
-            words = words.map(word => switchLetters(word));
-            const newTextContent = words.join(' ');
-            if (randomTextNode.parentElement) {
-                let newDiv = document.createElement('span');
-                newDiv.style.display = "inline-block";
-                newDiv.style.transformOrigin = "bottom center";
-                newDiv.style.transition = "transform 0.3s";
-                newDiv.textContent = newTextContent;
-                randomTextNode.parentNode.replaceChild(newDiv, randomTextNode);
-            }
-        }
-    }
-    const addVisualListeners = () => {
-        for(let i = 0; i<numModifications; i++){
+    function addVisualListeners(numModifications) {
+        for (let i = 0; i < numModifications; i++) {
             applyWordMovement();
-            displayTheMirrorOfLetter();
-            rearrangeLetters();
+            applyBlurEffect();
         }
     }
-    return addVisualListeners();
-}
-function activateDoubleDeficitMood(difficulty){
-    const addDoubleDeficitListeners = () => {
-        activatePhonologicalMood(difficulty);
-        actiavateRapidNamingMood(difficulty);
+    // Public function
+    function activateVisualMood(difficulty) {
+        // Create the style element for keyframes animation
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes wordMovement {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(5px); }
+            }
+            @keyframes blurEffect {
+                0% { filter: blur(0px); }
+                25% { filter: blur(0.25px); }
+                50% { filter: blur(0.5px); }
+                75% { filter: blur(0.75px); }
+                100% { filter: blur(1px); }
+            }            
+        `;
+        document.head.appendChild(style);
+
+        textNodes = collectTextNodes();
+        const numModifications = Math.ceil(textNodes.length * (difficulty / 10));
+        addVisualListeners(numModifications);
     }
-    return addDoubleDeficitListeners();
+    return {
+        activateVisualMood: activateVisualMood
+    };
+})();
+const DoubleDeficitMoodModule = (function() {
+    // Private function to activate both phonological and rapid naming moods
+    function addDoubleDeficitListeners(difficulty) {
+        PhonologicalMoodModule.activatePhonologicalMood(difficulty);
+        RapidNamingMoodModule.activateRapidNamingMood(difficulty);
+    }
+
+    // Public function
+    function activateDoubleDeficitMood(difficulty) {
+        return addDoubleDeficitListeners(difficulty);
+    }
+    return {
+        activateDoubleDeficitMood: activateDoubleDeficitMood
+    };
+})();
+let currentUtterance;
+let textNodes = [];
+let currentIndex = 0; 
+let highLightedNode;
+function speakText(language, speed, hihgLightedColor, textAreaInput) {
+    if(textAreaInput.trim().length > 0){
+        speakTextAreaInput(language, speed, textAreaInput);
+    }
+    else{
+        currentIndex = 0; 
+        textNodes = collectTextNodes();
+        speakNextNode(language, speed, hihgLightedColor,textAreaInput);
+    }
+    
+}
+function dyslexiaType(type,diffuculty) {
+    switch(type) {
+        case "Phonological":
+            PhonologicalMoodModule.activatePhonologicalMood(diffuculty.Phonological);
+            break;
+        case "Surface":
+            SurfaceMoodModule.activateSurfaceMood(diffuculty.Surface);
+            break;
+        case "Rapid naming":
+            RapidNamingMoodModule.activateRapidNamingMood(diffuculty.Rapid_naming);
+            break;
+        case "Visual":
+            VisualMoodModule.activateVisualMood(diffuculty.Visual);
+            break;
+        case "Double Deficit":
+            DoubleDeficitMoodModule.activateDoubleDeficitMood(diffuculty.Double_Deficit);
+            break;
+        default:
+            break;
+    }
+}
+function start() {
+    if (!isListening) {
+        chromeApi.runtime.onMessage.addListener(messageListener);
+        isListening = true;
+    }
+}
+
+function stop() {
+    if (isListening) {
+        chromeApi.runtime.onMessage.removeListener(messageListener);
+        isListening = false;
+        var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
+        if (originalTexts) {
+            document.body.innerHTML = originalTexts.bodyContent;
+            localStorage.removeItem('originalTexts');
+            console.log("Page content restored from local storage.");
+        } else {
+            console.log("No stored content found.");
+        }
+    }
 }
 function mirrorWord(word){
     const mirrorLetters = {
@@ -451,21 +570,6 @@ function switchLetters(word){
     letters[0] = lastLetter;
     letters[letters.length - 1] = firstLetter;
     return letters.join(''); 
-}
-let currentUtterance;
-let textNodes = [];
-let currentIndex = 0; 
-let highLightedNode;
-function speakText(language, speed, hihgLightedColor, textAreaInput) {
-    if(textAreaInput.trim().length > 0){
-        speakTextAreaInput(language, speed, textAreaInput);
-    }
-    else{
-        currentIndex = 0; 
-        textNodes = collectTextNodes();
-        speakNextNode(language, speed, hihgLightedColor,textAreaInput);
-    }
-    
 }
 function speakTextAreaInput(language, speed,textAreaInput){
     const utterance = new SpeechSynthesisUtterance();
@@ -546,21 +650,27 @@ function pauseSpeaking(textAreaInput){
         speechSynthesis.cancel();
     }
 }
-speechSynthesis.onresume = () => {
+/* speechSynthesis.onresume = () => {
     if (currentUtterance) {
         continueSpeaking(currentUtterance.lang, currentUtterance.rate);
     }
-};
+}; */
 function applyChangesInText(color, size, fontType, lineSpace){
     textNodes = collectTextNodes();
     textNodes.map(textNode => {
-        const words = textNode.nodeValue.trim().split(/\s+/);
-        for(let i = 0; i<words.length; i++){
-            words[i]  = `<span style="color: ${color};font-size:${size}px;font-family:${fontType}; line-height:${lineSpace};">${words[i]}</span>`
+        const textElementTags = ['a','i', 'span', 'strong','li','em','figcaption','code', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'];
+        const parentElement = textNode.parentNode; 
+        const lowerCaseTagName = parentElement.tagName.toLowerCase();
+        if(textElementTags.includes(lowerCaseTagName)){
+            const currentFontSize = window.getComputedStyle(parentElement, null).getPropertyValue('font-size');
+            const fontSizeNumber = parseFloat(currentFontSize);
+            const newFontSize = fontSizeNumber + size;
+            parentElement.style.fontSize = newFontSize + 'px';
+            parentElement.style.fontSize += size;
+            parentElement.style.color = color;
+            parentElement.style.fontFamily = fontType;
+            parentElement.style.lineHeight = lineSpace;
         }
-        const container = document.createElement('span');
-        container.innerHTML = words.join(' ');
-        textNode.parentNode.replaceChild(container,textNode);
     })   
 }
 
@@ -571,11 +681,9 @@ function removeChangesInText(){
         localStorage.removeItem('originalTexts');
     }
 }
-/* module.exports = {
-    start,
-    stop,
+module.exports = {
     dyslexiaType,
     mirrorWord,
     switchLetters
 
-}; */
+};

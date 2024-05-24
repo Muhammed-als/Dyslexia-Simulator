@@ -1,4 +1,3 @@
-// chromeApi.js
 module.exports = {
     runtime: {
       onMessage: {

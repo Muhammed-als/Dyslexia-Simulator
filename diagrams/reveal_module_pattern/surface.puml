@@ -1,0 +1,25 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE SurfaceMoodModule {
+    + activateSurfaceMood(difficulty)
+}
+
+class Private {
+    - changeFontStyle()
+    - removeVowels()
+    - addSurfaceListeners(numModifications)
+}
+note left of Private::changeFontStyle
+Private function to change the font style.
+end note
+note left of Private::removeVowels
+Private function to remove vowels within a word.
+end note
+note left of Private::addSurfaceListeners
+Private function to apply surface modifications by calling the  
+changeFontStyle() and removeVowels() functions.
+end note
+
+SurfaceMoodModule ..> Private : uses
+@enduml

@@ -1,6 +1,6 @@
 @startuml Double Deficit
 start 
-: The simulator combines the phonological and Rapid Naming dyslexia challenges together;
+: The extension combines the phonological and Rapid Naming dyslexia challenges together;
 :Apply changes to text;
 stop
 @enduml

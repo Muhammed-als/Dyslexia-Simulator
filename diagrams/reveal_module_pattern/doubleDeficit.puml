@@ -1,0 +1,24 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE DoubleDeficitMoodModule {
+    +activateDoubleDeficitMood(difficulty)
+}
+
+RECTANGLE PhonologicalMoodModule {
+    +activatePhonologicalMood(difficulty)
+}
+
+RECTANGLE RapidNamingMoodModule {
+    +activateRapidNamingMood(difficulty)
+}
+
+note right of DoubleDeficitMoodModule::activateDoubleDeficitMood
+This function calls private function addDoubleDeficitListeners which calls:
+- PhonologicalMoodModule.activatePhonologicalMood(difficulty)
+- RapidNamingMoodModule.activateRapidNamingMood(difficulty)
+end note
+
+DoubleDeficitMoodModule --> PhonologicalMoodModule : uses
+DoubleDeficitMoodModule --> RapidNamingMoodModule : uses
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE VisualMoodModule {
+    + activateVisualMood(difficulty)
+}
+
+class Private {
+    - applyWordMovement()
+    - applyBlurEffect()
+    - addVisualListeners(numModifications)
+}
+note left of Private::applyWordMovement
+Private function to appy word movement animation.
+end note
+note left of Private::applyBlurEffect
+Private function to apply blur effect.
+end note
+note left of Private::addVisualListeners
+Private function to apply visual modifications by calling the  
+applyWordMovement() and applyBlurEffect() functions.
+end note
+
+VisualMoodModule ..> Private : uses
+@enduml

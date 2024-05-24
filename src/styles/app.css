@@ -10,18 +10,17 @@ html
     padding: 1%;
 }
 body{
-    background-color: rgb(129, 0, 113);
+    background-color: #6B006B;
     color: white;
     overflow: auto;
-
 }
 #react-target{
     width: 100%;
     border-radius: 15px;
 }
 .simulation-container{
-    width: 100%; /* Adjust the percentage or use a fixed width */
-    margin: 0 auto; /* Center the container horizontally */
+    width: 100%;
+    margin: 0 auto;
 }
 .title{
     font-size: x-large;

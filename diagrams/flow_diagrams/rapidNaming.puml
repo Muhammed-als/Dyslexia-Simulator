@@ -1,11 +1,14 @@
 @startuml surface
 start
 
-:The simulator choose words from the presented text;
-:Warp letters within a word;
-:The simulator choose another words from the presented text;
-:Change font color;
-:Apply changes to text;
+: The extension chooses sentences from the presented text;
+: Warp letters within a word;
+: The extension chooses other sentences from the presented text;
+while (Is the selected sentence the same?) is (yes)
+    : Choose another sentence from the presented text;
+endwhile (no)
+: Change font color;
+: Apply changes to text;
 
 stop
 @enduml

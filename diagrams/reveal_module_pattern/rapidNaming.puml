@@ -1,0 +1,27 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE RapidNamingMoodModule {
+    + activateRapidNamingMood(difficulty)
+}
+
+class Private {
+    - changeFontColor()
+    - applyWarpEffect()
+    - addRapidNamingListeners(numModifications)
+}
+note left of Private::changeFontColor
+Private function to change the font color.
+end note
+
+note left of Private::applyWarpEffect
+Private function to apply warp effect.
+end note
+
+note left of Private::addRapidNamingListeners
+Private function to apply rapid naming modifications by calling the  
+changeFontColor() and applyWarpEffect() functions.
+end note
+
+RapidNamingMoodModule ..> Private : uses
+@enduml
