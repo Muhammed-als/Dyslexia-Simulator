@@ -1,10 +1,8 @@
-const chromeApi = require("./chromeApi");
-
 let isListening = false;
 const messageListener = function(request, sender, sendResponse) {
     return request.type;
 };
-chromeApi.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(request.type === "speak"){
         speakText(request.settings.language, request.settings.speed, request.settings.hihgLightedColor,request.settings.textAreaInput);
         
@@ -43,12 +41,12 @@ function collectTextNodes() {
             textNodes.push(currentNode);
         }
     }
-   /*  var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
+    var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
     if (!originalTexts) {
         originalTexts = {};
     }
     originalTexts.bodyContent = document.body.innerHTML;
-    localStorage.setItem('originalTexts', JSON.stringify(originalTexts)); */
+    localStorage.setItem('originalTexts', JSON.stringify(originalTexts));
     return textNodes;
 }
 
@@ -532,14 +530,14 @@ function dyslexiaType(type,diffuculty) {
 }
 function start() {
     if (!isListening) {
-        chromeApi.runtime.onMessage.addListener(messageListener);
+        chrome.runtime.onMessage.addListener(messageListener);
         isListening = true;
     }
 }
 
 function stop() {
     if (isListening) {
-        chromeApi.runtime.onMessage.removeListener(messageListener);
+        chrome.runtime.onMessage.removeListener(messageListener);
         isListening = false;
         var originalTexts = JSON.parse(localStorage.getItem('originalTexts'));
         if (originalTexts) {
@@ -650,11 +648,11 @@ function pauseSpeaking(textAreaInput){
         speechSynthesis.cancel();
     }
 }
-/* speechSynthesis.onresume = () => {
+speechSynthesis.onresume = () => {
     if (currentUtterance) {
         continueSpeaking(currentUtterance.lang, currentUtterance.rate);
     }
-}; */
+};
 function applyChangesInText(color, size, fontType, lineSpace){
     textNodes = collectTextNodes();
     textNodes.map(textNode => {
@@ -681,9 +679,9 @@ function removeChangesInText(){
         localStorage.removeItem('originalTexts');
     }
 }
-module.exports = {
+/* module.exports = {
     dyslexiaType,
     mirrorWord,
     switchLetters
 
-};
+}; */
