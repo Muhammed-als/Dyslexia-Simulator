@@ -1,0 +1,28 @@
+@startuml
+actor User
+
+participant "Popup Component" as Popup
+participant "Main React Component" as Simulation
+participant "Main File" as MainFile
+
+User -> Popup: interacts with
+Popup -> Simulation: renders Simulation component
+
+group Simulation Component
+    User -> Simulation: selects dyslexia type
+    User -> Simulation: sets difficulty levels
+    User -> Simulation: clicks "Start simulation"
+    Simulation -> Simulation: send a message 
+end
+
+MainFile -> MainFile: Listen whether any messages are sent
+
+group Handling Messages in Main File
+    alt request.type === "stop"
+        MainFile -> MainFile: stop()
+    else
+        MainFile -> MainFile: start()
+        MainFile -> MainFile: dyslexiaType(request.type, difficultyLevels)
+    end
+end
+@enduml
